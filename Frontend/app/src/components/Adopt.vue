@@ -1,20 +1,21 @@
-<!-- eslint-disable vue/singleline-html-element-content-newline -->
-<!-- eslint-disable vue/max-attributes-per-line -->
+<!-- eslint-disable vue/html-indent -->
+<!-- eslint-disable vue/html-self-closing, vue/html-closing-bracket-newline, vue/no-parsing-error, vue/singleline-html-element-content-newline, vue/first-attribute-linebreak, vue/max-attributes-per-line, vue/attributes-order -->
 <template>
   <div class="adopt-container">
     <h2>Dogs Available for Adoption</h2>
     <div v-if="dogs.length" class="dogs-grid">
-      <div v-for="dog in dogs" :key="dog.id" class="dog-card">
-        <div class="dog-image">
-          <img :src="getImageUrl(dog.ImageUrl)" :alt="dog.Name">
-        </div>
-        <div class="dog-info">
-          <h3>{{ dog.Name }}</h3>
-          <p><strong>Breed:</strong> {{ dog.Breed }}</p>
-          <p><strong>Age:</strong> {{ dog.Age }} years</p>
-          <button class="adopt-button" @click="adoptDog(dog.id)">Adopt Now</button>
-        </div>
+    <div v-for="Animal in dogs" :key="Animal.AnimalId" class="dog-card">
+      <div class="dog-image">
+        <img :src="getImageUrl(Animal.Image)" :alt="Animal.Name">
       </div>
+      <div class="dog-info">
+        <h3>{{ Animal.Name }}</h3>
+        <p><strong>Breed:</strong> {{ Animal.Breed }}</p>
+        <p><strong>Age:</strong> {{ Animal.Age }} years</p>
+        <p class="dog-description">{{ Animal.Description }}</p>
+        <button class="adopt-button" @click="adoptDog(Animal.AnimalId)">Adopt Now</button>
+      </div>
+    </div>
     </div>
     <p v-else class="no-dogs">No dogs currently available for adoption.</p>
   </div>
@@ -22,6 +23,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 const dogs = ref([])
 const error = ref(null)
@@ -30,8 +32,6 @@ const error = ref(null)
 function getImageUrl(imageUrl) {
   if (!imageUrl) return '/placeholder-dog.jpg'
   if (imageUrl.startsWith('http')) return imageUrl
-  if (imageUrl.startsWith('/')) return `http://localhost:5000${imageUrl}`
-  // Handle local uploaded images
   return `http://localhost:5000/uploads/${imageUrl}`
 }
 
@@ -48,10 +48,11 @@ async function fetchDogs() {
   }
 }
 
-function adoptDog(id) {
-  // Trigger adoption flow
-  console.log('Adopt dog with ID:', id)
+const router = useRouter()
+function adoptDog(animalId) {
+  router.push({ name: 'AdoptionForm', params: { animalId: animalId } })
 }
+
 
 // Initial fetch
 onMounted(() => {
@@ -112,6 +113,13 @@ onMounted(() => {
 .dog-info p {
   margin: 0.5rem 0;
   color: #666;
+}
+
+.dog-description {
+  margin: 1rem 0;
+  font-style: italic;
+  color: #555;
+  line-height: 1.4;
 }
 
 .adopt-button {

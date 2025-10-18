@@ -5,17 +5,15 @@
     
     <div 
       v-if="!isPayPalLoaded" 
-      class="loading-message"
-    >
+      class="loading-message">
       Loading PayPal...
     </div>
     
-    <div id="paypal-button-container" />
+    <div id="paypal-button-container"></div>
     
     <div 
       v-if="resultMsg"
-      :class="['result-message', { success: isSuccess, error: !isSuccess }]"
-    >
+      :class="['result-message', { success: isSuccess, error: !isSuccess }]">
       {{ resultMsg }}
     </div>
   </div>
@@ -26,7 +24,7 @@ import { onMounted, ref } from 'vue'
 
 // State
 const isPayPalLoaded = ref(false)
-const selectedAmount = ref(25)
+const selectedAmount = ref(100)
 const resultMsg = ref('')
 const isSuccess = ref(false)
 
@@ -41,7 +39,7 @@ function loadPayPalScript() {
   return new Promise((resolve) => {
     // Using sandbox client ID directly for testing
     const script = document.createElement('script')
-    script.src = 'https://www.paypal.com/sdk/js?client-id=test&currency=USD&components=buttons,payment-fields,marks'
+    script.src = 'https://www.paypal.com/sdk/js?client-id=test&currency=MKD&components=buttons,payment-fields,marks'
     script.onload = () => {
       isPayPalLoaded.value = true
       resolve()
@@ -88,8 +86,8 @@ function initializePayPal() {
           return response.json()
         })
         .then(orderData => {
-          if (orderData.id) {
-            return orderData.id
+          if (orderData.DonationId) {
+            return orderData.DonationId
           }
           throw new Error('No order ID received')
         })
@@ -120,7 +118,7 @@ function initializePayPal() {
           console.log('Capture successful:', orderData)
           const transaction = orderData?.purchase_units?.[0]?.payments?.captures?.[0]
           if (transaction) {
-            showMessage(`Thank you for your donation of $${selectedAmount.value}! Transaction ID: ${transaction.id}`, true)
+            showMessage(`Thank you for your donation of $${selectedAmount.value}! Transaction ID: ${transaction.TransactionId}`, true)
           } else {
             throw new Error('No transaction details found')
           }

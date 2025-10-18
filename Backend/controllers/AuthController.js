@@ -22,9 +22,9 @@ const verifyPassword = async (plainPassword, hashedPassword) => {
   return await bcrypt.compare(plainPassword, hashedPassword);
 };
 
-const generateAuthToken = (username, role) => {
+const generateAuthToken = (username, role, AdminID) => {
   return jwt.sign(
-    { username, role },
+    { username, role, AdminID },
     process.env.JWT_SECRET,
     { expiresIn: '1h' }
   );
@@ -53,13 +53,8 @@ const loginController = async (request, response) => {
       return response.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Check if user is admin
-    if (user.Role !== 'admin') {
-      return response.status(403).json({ error: 'Access denied. Admin privileges required.' });
-    }
-
-    // Generate token with role
-    const token = generateAuthToken(user.Username, user.Role);
+    // Generate token with role and AdminID
+    const token = generateAuthToken(user.Username, user.Role, user.AdminID);
     response.json({ token, role: user.Role });
   } catch (error) {
     console.error('Login error:', error.message);

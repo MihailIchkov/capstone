@@ -10,7 +10,8 @@ import Dashboard from './components/Dashboard.vue'
 import Login from './components/Login.vue'
 import Register from './components/Register.vue'
 import Add from './components/Add.vue'
-import VueGoogleMaps from '@fawmi/vue-google-maps'
+import Volunteer from './components/Volunteer.vue'
+import AdoptionForm from './components/AdoptionForm.vue'
 
 // Navigation guards
 function requireAdmin(to, from, next) {
@@ -37,8 +38,12 @@ const routes = [
   { path: '/', component: Home },
   { path: '/home', component: Home },
   { path: '/adopt', component: Adopt },
+  { path: '/adopt/:id', component: Adopt },
+  { path: '/adopt/:id/apply', name: 'AdoptionForm', component: AdoptionForm },
+  { path: '/about', component: Home },
   { path: '/report', component: Report },
   { path: '/donate', component: Donate },
+  { path: '/volunteer', component: Volunteer },
   { path: '/login', component: Login },
 
   // Admin routes
@@ -67,13 +72,5 @@ const router = createRouter({
 
 const app = createApp(App)
 
-app.use(router) 
-
-app.use(VueGoogleMaps, {
-  load: {
-    key: 'AIzaSyDpWUZETJqKI8vsWrIhp29Shrp73KNRozA',
-    libraries: 'places',
-  },
-})
-
-.use(router).mount('#app')
+app.use(router)
+app.mount('#app')

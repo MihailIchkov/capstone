@@ -7,6 +7,7 @@
           <h2>Admin Login</h2>
           <p>Sign in to access the admin dashboard</p>
         </div>
+        
         <form @submit.prevent="login" class="auth-form">
           <div class="form-group">
             <label for="username">Username</label>
@@ -87,30 +88,34 @@ const login = async () => {
       throw new Error('No token received from server');
     }
 
-    // Decode and verify admin token
-    try {
-      const payload = JSON.parse(atob(data.token.split('.')[1]));
-      if (payload.role !== 'admin') {
-        throw new Error('Access denied. Admin privileges required.');
-      }
-      // Store token only after verifying admin role
-      localStorage.setItem('token', data.token);
-      console.log('Admin login successful');
-      router.push('/dashboard');
-    } catch (e) {
-      console.error('Token verification error:', e);
-      throw new Error('Invalid admin access token');
+    // Store token
+    localStorage.setItem('token', data.token);
+
+    // Decode token to check role
+    const payload = JSON.parse(atob(data.token.split('.')[1]));
+    if (payload.role !== 'admin') {
+      throw new Error('Access denied. Admin privileges required.');
     }
+
+    console.log('Admin login successful');
+    localStorage.setItem('userRole', payload.role);
+    
+    // Redirect to dashboard
+    router.push('/dashboard');
 
   } catch (err) {
     console.error('Login error:', err);
     error.value = err.message || 'Invalid admin credentials';
+    // Clear any stored data on error
     localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
   } finally {
     isLoading.value = false;
   }
 }
-</script><style scoped>
+</script>
+
+<style scoped>
 .auth-page {
   min-height: calc(100vh - 70px);
   display: flex;

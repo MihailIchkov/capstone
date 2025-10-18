@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-self-closing, vue/html-closing-bracket-newline, vue/no-parsing-error, vue/singleline-html-element-content-newline -->
 <template>
   <div id="app">
     <Layout>

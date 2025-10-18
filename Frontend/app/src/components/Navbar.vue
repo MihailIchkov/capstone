@@ -1,12 +1,10 @@
-<!-- eslint-disable vue/singleline-html-element-content-newline -->
-<!-- eslint-disable vue/attributes-order -->
-<!-- eslint-disable vue/max-attributes-per-line -->
+<!-- eslint-disable vue/html-self-closing, vue/html-closing-bracket-newline, vue/no-parsing-error, vue/singleline-html-element-content-newline, vue/first-attribute-linebreak, vue/max-attributes-per-line, vue/attributes-order -->
 <template>
   <header class="header">
     <nav class="navbar">
       <div class="logo">
         <router-link to="/">
-          <img src="@/assets/logo.jpg" alt="Stray Care Logo">
+          <img src="@/assets/logo.png" alt="Stray Care Logo">
           <span>Stray Care</span>
         </router-link>
       </div>
@@ -16,6 +14,7 @@
         <router-link to="/adopt" class="nav-link">Adopt</router-link>
         <router-link to="/donate" class="nav-link">Donate</router-link>
         <router-link to="/report" class="nav-link">Report a Stray</router-link>
+        <router-link to="/volunteer" class="nav-link">Volunteer</router-link>
         
         <template v-if="isAdmin">
           <div class="dropdown">
@@ -148,6 +147,7 @@ watch(() => router.currentRoute.value, checkAuthStatus)
   width: auto;
   margin-right: 1rem;
   object-fit: contain;
+  background: transparent;
 }
 
 .nav-links {
@@ -207,21 +207,33 @@ watch(() => router.currentRoute.value, checkAuthStatus)
   right: 0;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
   padding: 0.5rem 0;
   min-width: 200px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 1000;
+}
+
+.dropdown:hover .dropdown-menu {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .dropdown-item {
   display: block;
-  padding: 0.5rem 1rem;
+  padding: 0.8rem 1.2rem;
   text-decoration: none;
   color: #333;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  font-weight: 500;
 }
 
 .dropdown-item:hover {
   background: #f5f5f5;
+  color: #4CAF50;
+  padding-left: 1.5rem;
 }
 
 .auth-buttons {

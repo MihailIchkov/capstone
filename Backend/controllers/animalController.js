@@ -11,7 +11,14 @@ export const getAllAnimals = async (req, res) => {
   try {
     const request = new sql.Request(pool);
     const result = await request.query('SELECT * FROM Animals');
-    res.json(result.recordset);
+    
+    // Add the server URL to image paths
+    const animals = result.recordset.map(animal => ({
+      ...animal,
+      Image: animal.ImageUrl ? `http://localhost:5000${animal.ImageUrl}` : null
+    }));
+    
+    res.json(animals);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -21,9 +28,9 @@ export const getAnimalById = async (req, res) => {
   const { id } = req.params;
   try {
     const request = new sql.Request(pool);
-    const result = await request.query('SELECT * FROM Animals WHERE id = @id', {
-      id: parseInt(id)
-    });
+    const result = await request
+      .input('AnimalId', sql.Int, parseInt(id))
+      .query('SELECT * FROM Animals WHERE AnimalId = @AnimalId');
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: 'Animal not found' });
     }
@@ -35,11 +42,11 @@ export const getAnimalById = async (req, res) => {
 
 export const createAnimal = async (req, res) => {
   try {
-    const { name, breed, age } = req.body;
+    const { Name, Breed, Age } = req.body;
     let ImageUrl = '';
 
     // Validate required fields
-    if (!name || !breed || !age) {
+    if (!Name || !Breed || !Age) {
       return res.status(400).json({ error: 'Name, Breed and Age are required' });
     }
     
@@ -62,9 +69,9 @@ export const createAnimal = async (req, res) => {
       VALUES (@Name, @Breed, @Age, @ImageUrl)
     `;
 
-    await request.input('Name', sql.NVarChar, name)
-                .input('Breed', sql.NVarChar, breed)
-                .input('Age', sql.Int, parseInt(age))
+    await request.input('Name', sql.NVarChar, Name)
+                .input('Breed', sql.NVarChar, Breed)
+                .input('Age', sql.Int, parseInt(Age))
                 .input('ImageUrl', sql.NVarChar, ImageUrl)
                 .query(query);
 
@@ -105,11 +112,11 @@ export const updateAnimal = async (req, res) => {
     const query = `
       UPDATE Animals 
       SET ${updateFields.join(', ')}
-      WHERE id = @id
+      WHERE AnimalId = @AnimalId
     `;
 
     const updateRequest = request
-      .input('id', sql.Int, parseInt(id));
+      .input('AnimalId', sql.Int, parseInt(id));
     
     if (Name) updateRequest.input('Name', sql.NVarChar, Name);
     if (Breed) updateRequest.input('Breed', sql.NVarChar, Breed);
@@ -139,8 +146,8 @@ export const deleteAnimal = async (req, res) => {
     
     // Using parameterized query for safety
     const result = await request
-      .input('id', sql.Int, parseInt(id))
-      .query('DELETE FROM Animals WHERE id = @id');
+      .input('AnimalId', sql.Int, parseInt(id))
+      .query('DELETE FROM Animals WHERE AnimalId = @AnimalId');
 
     if (result.rowsAffected[0] === 0) {
       return res.status(404).json({ error: 'Animal not found' });

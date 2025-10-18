@@ -11,9 +11,10 @@
       <div class="footer-section">
         <h3>Quick Links</h3>
         <ul>
-          <li><router-link to="/Adopt">Adopt a Dog</router-link></li>
-          <li><router-link to="/Donate">Make a Donation</router-link></li>
-          <li><router-link to="/Report">Report a Stray</router-link></li>
+          <li><router-link to="/adopt">Adopt a Dog</router-link></li>
+          <li><router-link to="/donate">Make a Donation</router-link></li>
+          <li><router-link to="/volunteer">Volunteer</router-link></li>
+          <li><router-link to="/report">Report a Stray</router-link></li>
         </ul>
       </div>
 
@@ -22,15 +23,15 @@
         <ul class="contact-info">
           <li>
             <i class="fas fa-map-marker-alt"></i>
-            <span>123 Shelter Street<br>City, State 12345</span>
+            <span>Skopje, North Macedonia</span>
           </li>
           <li>
             <i class="fas fa-phone"></i>
-            <span>(123) 456-7890</span>
+            <span>+389 2 3245-678</span>
           </li>
           <li>
             <i class="fas fa-envelope"></i>
-            <span>info@straycare.org</span>
+            <span>contact@straycare.mk</span>
           </li>
         </ul>
       </div>

@@ -1,4 +1,4 @@
-<!-- eslint-disable vue/singleline-html-element-content-newline -->
+<!-- eslint-disable vue/singleline-html-element-content-newline, vue/html-self-closing, vue/html-closing-bracket-newline, vue/no-parsing-error -->
 <template>
   <div class="auth-page">
     <div class="auth-container">
@@ -34,6 +34,15 @@
               :disabled="isLoading"
               class="form-input"
             >
+            <div class="password-requirements">
+              Password must contain:
+              <ul>
+                <li :class="{ met: password.length >= 8 }">At least 8 characters</li>
+                <li :class="{ met: /[A-Z]/.test(password) }">One uppercase letter</li>
+                <li :class="{ met: /[a-z]/.test(password) }">One lowercase letter</li>
+                <li :class="{ met: /\d/.test(password) }">One number</li>
+              </ul>
+            </div>
           </div>
 
           <div 
@@ -56,10 +65,6 @@
             {{ isLoading ? 'Creating Account...' : 'Create Account' }}
           </button>
         </form>
-
-        <div class="auth-footer">
-          <p>Already have an account? <router-link to="/login">Sign In</router-link></p>
-        </div>
       </div>
     </div>
   </div>
@@ -75,9 +80,32 @@ const password = ref('')
 const error = ref('')
 const isLoading = ref(false)
 
+function validatePassword(password) {
+  const minLength = 8
+  const hasUpperCase = /[A-Z]/.test(password)
+  const hasLowerCase = /[a-z]/.test(password)
+  const hasNumbers = /\d/.test(password)
+
+  const errors = []
+  if (password.length < minLength) errors.push(`at least ${minLength} characters`)
+  if (!hasUpperCase) errors.push('one uppercase letter')
+  if (!hasLowerCase) errors.push('one lowercase letter')
+  if (!hasNumbers) errors.push('one number')
+
+  return errors
+}
+
 const register = async () => {
   isLoading.value = true
   error.value = ''
+
+  // Validate password
+  const passwordErrors = validatePassword(password.value)
+  if (passwordErrors.length > 0) {
+    error.value = `Password must contain ${passwordErrors.join(', ')}`
+    isLoading.value = false
+    return
+  }
 
   try {
     const response = await fetch('http://localhost:5000/api/auth/register', {
@@ -162,7 +190,7 @@ const register = async () => {
 }
 
 .form-input {
-  width: 100%;
+  width: 90%;
   padding: 0.8rem;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
@@ -173,6 +201,36 @@ const register = async () => {
 .form-input:focus {
   outline: none;
   border-color: #4CAF50;
+}
+
+.password-requirements {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.password-requirements ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.5rem 0;
+}
+
+.password-requirements li {
+  margin: 0.25rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.password-requirements li::before {
+  content: '✕';
+  position: absolute;
+  left: 0;
+  color: #f44336;
+}
+
+.password-requirements li.met::before {
+  content: '✓';
+  color: #4CAF50;
 }
 
 .auth-button {

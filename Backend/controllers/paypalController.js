@@ -1,4 +1,6 @@
-const fetch = require('node-fetch');
+// controllers/paypalController.js
+import fetch from 'node-fetch';
+import { pool, sql } from '../config/db.js';
 
 const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID || 'test';
 const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET || 'test';
@@ -7,7 +9,7 @@ const base = "https://api-m.sandbox.paypal.com";
 // Helper to get access token
 async function generateAccessToken() {
   try {
-    const auth = Buffer.from(PAYPAL_CLIENT_ID + ":" + PAYPAL_CLIENT_SECRET).toString("base64");
+    const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString("base64");
     const response = await fetch(`${base}/v1/oauth2/token`, {
       method: "POST",
       body: "grant_type=client_credentials",
@@ -26,7 +28,7 @@ async function generateAccessToken() {
 }
 
 // Create PayPal order
-exports.createOrder = async (req, res) => {
+export const createOrder = async (req, res) => {
   try {
     const cart = req.body.cart;
     if (!cart || !Array.isArray(cart) || !cart.length) {
@@ -34,13 +36,10 @@ exports.createOrder = async (req, res) => {
     }
 
     const total = cart.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-    if (total <= 0) {
-      return res.status(400).json({ error: "Invalid donation amount" });
-    }
+    if (total <= 0) return res.status(400).json({ error: "Invalid donation amount" });
 
     const accessToken = await generateAccessToken();
-    const url = `${base}/v2/checkout/orders`;
-    const response = await fetch(url, {
+    const response = await fetch(`${base}/v2/checkout/orders`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,24 +47,14 @@ exports.createOrder = async (req, res) => {
       },
       body: JSON.stringify({
         intent: "CAPTURE",
-        purchase_units: [
-          {
-            amount: {
-              currency_code: "USD",
-              value: total.toFixed(2),
-            },
-            description: "Donation to Stray Care"
-          },
-        ],
+        purchase_units: [{ amount: { currency_code: "MKD", value: total.toFixed(2) }, description: "Donation to Stray Care" }],
       }),
     });
 
     const data = await response.json();
-    if (data.error) {
-      throw new Error(data.error);
-    }
+    if (data.error) throw new Error(data.error);
 
-    return res.json(data);
+    res.json(data);
   } catch (error) {
     console.error("Failed to create order:", error);
     res.status(500).json({ error: error.message });
@@ -73,13 +62,12 @@ exports.createOrder = async (req, res) => {
 };
 
 // Capture PayPal order
-exports.captureOrder = async (req, res) => {
+export const captureOrder = async (req, res) => {
   try {
     const { orderID } = req.params;
     const accessToken = await generateAccessToken();
-    const url = `${base}/v2/checkout/orders/${orderID}/capture`;
 
-    const response = await fetch(url, {
+    const response = await fetch(`${base}/v2/checkout/orders/${orderID}/capture`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,20 +76,22 @@ exports.captureOrder = async (req, res) => {
     });
 
     const data = await response.json();
-    if (data.error) {
-      throw new Error(data.error);
-    }
+    if (data.error) throw new Error(data.error);
 
-        // Save donation to database
+    // Save donation to database
     const transaction = data.purchase_units[0].payments.captures[0];
-    const donation = new Donation({
-      amount: parseFloat(transaction.amount.value),
-      transactionId: transaction.id,
-      user: req.user ? req.user.id : null
-    });
-    await donation.save();
+    const request = new sql.Request(pool);
+    
+    await request
+      .input('Amount', sql.Decimal(10, 2), parseFloat(transaction.amount.value))
+      .input('TransactionId', sql.NVarChar, transaction.id)
+      .input('AdminId', sql.Int, req.user ? req.user.AdminID : null)
+      .query(`
+        INSERT INTO Donations (Amount, TransactionId, AdminId, CreatedAt)
+        VALUES (@Amount, @TransactionId, @AdminId, GETDATE())
+      `);
 
-    return res.json(data);
+    res.json(data);
   } catch (error) {
     console.error("Failed to capture order:", error);
     res.status(500).json({ error: error.message });

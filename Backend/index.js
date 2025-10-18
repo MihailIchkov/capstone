@@ -4,6 +4,10 @@ import 'dotenv/config';
 import AuthRoutes from './routes/AuthRoutes.js';
 import animalRoutes from './routes/animalRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import volunteerRoutes from './routes/volunteerRoutes.js';
+import adoptionRoutes from './routes/adoptionRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
+import paypalRoutes from './routes/paypalRoutes.js';
 import {
   ApiError,
   Client,
@@ -28,7 +32,7 @@ app.use('/uploads', express.static('uploads'));
 
 // Create uploads directory if it doesn't exist
 import fs from 'fs';
-import { dirname } from 'path';
+import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -43,7 +47,10 @@ if (!fs.existsSync(uploadsDir)) {
 app.use('/api/animals', animalRoutes);
 app.use('/api/auth', AuthRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-
+app.use('/api/volunteers', volunteerRoutes);
+app.use('/api', adoptionRoutes); // This includes both /api/animals/:id/adopt and /api/adoptions routes
+app.use('/api/reports', reportRoutes);
+app.use('/api/payments', paypalRoutes);
 
 // PayPal Pocetok
 const { PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET } = process.env;
@@ -79,7 +86,7 @@ const createOrder = async (cart = []) => {
       purchaseUnits: [
         {
           amount: {
-            currencyCode: "USD",
+            currencyCode: "MKD",
             value: total,
           },
           description: "Donation to Stray Care"
@@ -128,6 +135,23 @@ app.post('/api/orders', async (req, res) => {
   try {
     const { cart } = req.body;
     const { jsonResponse, httpStatusCode } = await createOrder(cart);
+    
+    // Save donation to database
+    if (cart[0]?.id === 'DONATION') {
+      const request = new sql.Request(pool);
+      const donationResult = await request
+        .input('amount', sql.Decimal(10, 2), cart[0].amount)
+        .input('transactionId', sql.NVarChar, jsonResponse.id)
+        .query(`
+          INSERT INTO Donations (Amount, TransactionId, Status)
+          OUTPUT INSERTED.*
+          VALUES (@amount, @transactionId, 'Pending')
+        `);
+      
+      // Merge the donation ID with the PayPal response
+      jsonResponse.DonationId = donationResult.recordset[0].DonationId;
+    }
+    
     res.status(httpStatusCode).json(jsonResponse);
   } catch (error) {
     console.error('Failed to create order:', error);
@@ -139,6 +163,19 @@ app.post('/api/orders/:orderID/capture', async (req, res) => {
   try {
     const { orderID } = req.params;
     const { jsonResponse, httpStatusCode } = await captureOrder(orderID);
+    
+    // Update donation status in database
+    if (jsonResponse.status === 'COMPLETED') {
+      const request = new sql.Request(pool);
+      await request
+        .input('transactionId', sql.NVarChar, orderID)
+        .query(`
+          UPDATE Donations 
+          SET Status = 'Completed' 
+          WHERE TransactionId = @transactionId
+        `);
+    }
+    
     res.status(httpStatusCode).json(jsonResponse);
   } catch (error) {
     console.error('Failed to capture order:', error);
@@ -147,6 +184,6 @@ app.post('/api/orders/:orderID/capture', async (req, res) => {
 });//Paypal Kraj
 
 // Server
-app.listen(PORT, () => {
+app.listen(PORT, 0,0,0,0,  () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

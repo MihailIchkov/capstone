@@ -1,4 +1,4 @@
-<!-- eslint-disable vue/max-attributes-per-line -->
+<!-- eslint-disable vue/html-self-closing, vue/html-closing-bracket-newline, vue/no-parsing-error, vue/singleline-html-element-content-newline, vue/first-attribute-linebreak, vue/max-attributes-per-line, vue/attributes-order -->
 <template>
   <div class="home">
     <!-- Hero Section -->
@@ -17,14 +17,15 @@
     <section class="featured-dogs">
       <h2>Dogs Available for Adoption</h2>
       <div class="dogs-grid">
-        <div v-for="dog in featuredDogs" :key="dog.id" class="dog-card">
+        <div v-for="dog in featuredDogs" :key="dog.AnimalId" class="dog-card">
           <div class="dog-image">
-            <img :src="getImageUrl(dog.ImageUrl)" :alt="dog.Name">
+            <img :src="getImageUrl(dog.Image)" :alt="dog.Name">
           </div>
           <div class="dog-info">
             <h3>{{ dog.Name }}</h3>
             <p>{{ dog.Breed }} • {{ dog.Age }} years</p>
-            <router-link :to="'/adopt/' + dog.id" class="btn-adopt">Meet Me</router-link>
+            <p class="dog-brief">{{ dog.Description?.substring(0, 100) }}{{ dog.Description?.length > 100 ? '...' : '' }}</p>
+            <button class="btn-adopt" @click="adoptDog(dog.AnimalId)">Adopt Me</button>
           </div>
         </div>
       </div>
@@ -35,28 +36,39 @@
     <section class="mission">
       <div class="mission-content">
         <h2>Our Mission</h2>
-        <p>We are dedicated to reducing and controlling the stray dog population through:</p>
+        <p><b>We are dedicated to reducing and controlling the stray dog population through</b></p>
         <ul>
-          <li>Rescuing and rehabilitating stray dogs</li>
-          <li>Providing medical care and sterilization</li>
-          <li>Finding loving forever homes</li>
-          <li>Promoting responsible pet ownership</li>
+          <p>Rescuing and rehabilitating stray dogs</p>
+
+          <p>Providing medical care and sterilization</p>
+
+          <p>Finding loving forever homes</p>
+
+          <p>Promoting responsible pet ownership</p>
         </ul>
-        <router-link to="/about" class="btn-learn-more">Learn More About Us</router-link>
       </div>
     </section>
 
-    <!-- Success Stories -->
-    <section class="success-stories">
-      <h2>Recently Adopted</h2>
-      <div class="stories-grid">
-        <div v-for="story in successStories" :key="story.id" class="story-card">
-          <img :src="getImageUrl(story.imageUrl)" :alt="story.name">
-          <div class="story-overlay">
-            <h3>{{ story.name }}</h3>
-            <p>Found a loving home</p>
+    <!-- Volunteer Section -->
+    <section class="volunteer-section">
+      <div class="volunteer-content">
+        <h2>Become a Volunteer</h2>
+        <p>Join our team of dedicated volunteers and help make a difference in the lives of stray dogs</p>
+        <div class="volunteer-benefits">
+          <div class="benefit">
+            <h3>Make a Difference</h3>
+            <p>Help stray dogs find loving homes and get the care they need</p>
+          </div>
+          <div class="benefit">
+            <h3>Join Our Community</h3>
+            <p>Meet like-minded people who share your passion for animal welfare</p>
+          </div>
+          <div class="benefit">
+            <h3>Gain Experience</h3>
+            <p>Learn valuable skills in animal care and rescue operations</p>
           </div>
         </div>
+        <router-link to="/volunteer" class="btn-volunteer">Volunteer With Us</router-link>
       </div>
     </section>
   </div>
@@ -64,15 +76,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const featuredDogs = ref([])
-const successStories = ref([])
 
 function getImageUrl(imageUrl) {
   if (!imageUrl) return '/placeholder-dog.jpg'
   if (imageUrl.startsWith('http')) return imageUrl
-  if (imageUrl.startsWith('/')) return `http://localhost:5000${imageUrl}`
-  // Handle local uploaded images
   return `http://localhost:5000/uploads/${imageUrl}`
 }
 
@@ -84,6 +95,10 @@ async function fetchFeaturedDogs() {
   } catch (error) {
     console.error('Error fetching featured dogs:', error)
   }
+}
+
+function adoptDog(animalId) {
+  router.push({ name: 'AdoptionForm', params: { animalId: animalId } })
 }
 
 onMounted(() => {
@@ -204,6 +219,13 @@ onMounted(() => {
   margin-bottom: 1rem;
 }
 
+.dog-brief {
+  font-style: italic;
+  color: #555;
+  line-height: 1.4;
+  font-size: 0.95rem;
+}
+
 .btn-adopt {
   display: inline-block;
   padding: 0.5rem 1.5rem;
@@ -228,13 +250,14 @@ onMounted(() => {
 }
 
 .mission {
-  background: #f9f9f9;
+  background: #f9f9f9 transparent;
   text-align: center;
 }
 
 .mission-content {
   max-width: 800px;
   margin: 0 auto;
+  align-content: center;
 }
 
 .mission ul {
@@ -256,7 +279,7 @@ onMounted(() => {
   left: 0;
 }
 
-.btn-learn-more {
+.btn-learn-more, .btn-volunteer {
   display: inline-block;
   padding: 0.8rem 2rem;
   background: #4CAF50;
@@ -264,6 +287,67 @@ onMounted(() => {
   text-decoration: none;
   border-radius: 30px;
   transition: background 0.2s;
+}
+
+.volunteer-section {
+  background: #f5f5f5 transparent;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.volunteer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.volunteer-content h2 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.volunteer-content > p {
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto 3rem;
+}
+
+.volunteer-benefits {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+}
+
+.benefit {
+  padding: 1.5rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.benefit:hover {
+  transform: translateY(-5px);
+}
+
+.benefit h3 {
+  color: #4CAF50;
+  margin-bottom: 1rem;
+}
+
+.benefit p {
+  color: #666;
+  margin: 0;
+}
+
+.btn-volunteer {
+  font-size: 1.1rem;
+  padding: 1rem 3rem;
+}
+
+.btn-volunteer:hover {
+  background: #45a049;
+  transform: translateY(-2px);
 }
 
 .stories-grid {
@@ -291,7 +375,7 @@ onMounted(() => {
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  background: linear-gradient(transparent, rgba(254, 253, 253, 0.8));
   padding: 1rem;
   color: white;
 }
