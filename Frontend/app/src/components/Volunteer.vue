@@ -24,7 +24,7 @@ async function initializeLocationAutocomplete() {
     const google = await loadGoogleMapsAPI(process.env.VUE_APP_GOOGLE_MAPS_API_KEY)
     if (!locationInput.value) return
 
-    const { Autocomplete } = await google.maps.importLibrary('places')
+    const { Autocomplete } = google.maps
     
     // Set North Macedonia bounds
     const bounds = new google.maps.LatLngBounds(

@@ -170,8 +170,7 @@ async function initMap() {
     const google = await loadGoogleMapsAPI(process.env.VUE_APP_GOOGLE_MAPS_API_KEY);
     if (!mapElement.value || !locationInput.value) return;
 
-    const { Map, Geocoder, LatLngBounds } = google.maps;
-    const { Autocomplete } = await google.maps.importLibrary('places');
+    const { Map, Geocoder, LatLngBounds, Autocomplete } = google.maps;
 
     map.value = new Map(mapElement.value, {
       center: { lat: 41.6086, lng: 21.7453 }, // Center of North Macedonia
