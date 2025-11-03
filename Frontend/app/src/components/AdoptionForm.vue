@@ -16,7 +16,7 @@
             id="name"
             v-model="form.name"
             type="text"
-            class="form-input"
+            class="form-input-field"
             required
             placeholder="Enter your full name"
           >
@@ -28,7 +28,7 @@
             id="email"
             v-model="form.email"
             type="email"
-            class="form-input"
+            class="form-input-field"
             required
             placeholder="Enter your email"
           >
@@ -40,7 +40,7 @@
             id="phone"
             v-model="form.phone"
             type="tel"
-            class="form-input"
+            class="form-input-field"
             required
             placeholder="+389 XX XXX XXX"
           >
@@ -52,7 +52,7 @@
             id="address"
             v-model="form.address"
             type="text"
-            class="form-input"
+            class="form-input-field"
             required
             placeholder="Enter your full address"
           >
@@ -63,7 +63,7 @@
           <select
             id="homeType"
             v-model="form.homeType"
-            class="form-input"
+            class="form-input-field"
             required
           >
             <option value="">Select your home type</option>

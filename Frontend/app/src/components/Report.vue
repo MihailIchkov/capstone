@@ -19,7 +19,7 @@
                 id="location"
                 ref="locationInput"
                 v-model="report.location"
-                class="form-input"
+                class="form-input-field"
                 placeholder="Enter location in North Macedonia"
                 required
               >
@@ -32,7 +32,7 @@
               <textarea
                 id="details"
                 v-model="report.details"
-                class="form-input"
+                class="form-input-field"
                 placeholder="Describe the dog and situation (color, size, condition, etc.)"
                 required
                 rows="4"
@@ -44,7 +44,7 @@
                 Upload Photos (optional)
               </label>
               <input
-                class="form-input"
+                class="form-input-field"
                 type="file"
                 accept="image/*"
                 multiple
@@ -54,7 +54,7 @@
 
             <button
               type="submit"
-              class="submit-button"
+              class="button"
               :disabled="isLoading"
             >
               <span
@@ -92,6 +92,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { loadGoogleMapsAPI } from '@/utils/googleMaps.js'
 
 const mapElement = ref(null)
 const map = ref(null)
@@ -101,7 +102,7 @@ const error = ref('')
 const geocoder = ref(null)
 const mapLoaded = ref(false)
 const locationInput = ref(null) 
-let placeAutocomplete = null  
+let placeAutocomplete = null
 
 // Function to manage markers - ensures only one marker exists
 function setMarker(position) {
@@ -164,174 +165,184 @@ const report = ref({
   images: []
 })
 
-function initMap() {
-  if (!window.google || !mapElement.value || !locationInput.value) return
+async function initMap() {
+  try {
+    const google = await loadGoogleMapsAPI(process.env.VUE_APP_GOOGLE_MAPS_API_KEY);
+    if (!mapElement.value || !locationInput.value) return;
 
-  map.value = new window.google.maps.Map(mapElement.value, {
-    center: { lat: 41.6086, lng: 21.7453 }, // Center of North Macedonia
-    zoom: 8,
-    restriction: {
-      latLngBounds: MK_BOUNDS,
-      strictBounds: true
-    },
-    streetViewControl: false,
-    mapTypeControl: false,
-    zoomControl: true,
-    mapTypeId: 'roadmap'
-  })
+    const { Map, Geocoder, LatLngBounds } = google.maps;
+    const { Autocomplete } = await google.maps.importLibrary('places');
 
-  geocoder.value = new window.google.maps.Geocoder()
-
-  // Initialize Places Autocomplete with street-level precision
-  placeAutocomplete = new window.google.maps.places.Autocomplete(locationInput.value, {
-    bounds: new window.google.maps.LatLngBounds(
-      { lat: MK_BOUNDS.south, lng: MK_BOUNDS.west },
-      { lat: MK_BOUNDS.north, lng: MK_BOUNDS.east }
-    ),
-    strictBounds: true,
-    componentRestrictions: { country: 'MK' },
-    fields: ['formatted_address', 'geometry', 'name', 'address_components'],
-    types: ['address', 'street_address', 'route', 'street_number', 'geocode', 'establishment'],
-    language: 'en'
-  })
-
-  // Add click listener to map
-  map.value.addListener('click', (event) => {
-    const clickedLocation = {
-      lat: event.latLng.lat(),
-      lng: event.latLng.lng()
-    }
-    
-    if (clickedLocation.lat < MK_BOUNDS.south || 
-        clickedLocation.lat > MK_BOUNDS.north ||
-        clickedLocation.lng < MK_BOUNDS.west || 
-        clickedLocation.lng > MK_BOUNDS.east) {
-      
-      if (currentMarker) {
-        currentMarker.setMap(null)
-        currentMarker = null
-      }
-      locationInput.value.value = ''
-      report.value.location = ''
-      return
-    }
-
-    setMarker(clickedLocation)
-    geocoder.value.geocode(
-      { 
-        location: clickedLocation,
-        region: 'MK',
-        language: 'en'
+    map.value = new Map(mapElement.value, {
+      center: { lat: 41.6086, lng: 21.7453 }, // Center of North Macedonia
+      zoom: 8,
+      restriction: {
+        latLngBounds: MK_BOUNDS,
+        strictBounds: true
       },
-      (results, status) => {
-        if (status === 'OK' && results[0]) {
-          const result = results[0]
-          let street = '', city = '', neighborhood = '', streetNumber = ''
-          
-          for (const component of result.address_components) {
-            if (component.types.includes('route')) {
-              street = component.long_name;
+      streetViewControl: false,
+      mapTypeControl: false,
+      zoomControl: true,
+      mapTypeId: 'roadmap'
+    });
+
+    geocoder.value = new Geocoder();
+
+    // Initialize Places Autocomplete with street-level precision
+    // Using only 5 types max to comply with API limits
+    placeAutocomplete = new Autocomplete(locationInput.value, {
+      bounds: new LatLngBounds(
+        { lat: MK_BOUNDS.south, lng: MK_BOUNDS.west },
+        { lat: MK_BOUNDS.north, lng: MK_BOUNDS.east }
+      ),
+      strictBounds: true,
+      componentRestrictions: { country: 'MK' },
+      fields: ['formatted_address', 'geometry', 'name', 'address_components'],
+      types: ['address', 'street_address', 'route', 'establishment'],
+      language: 'en'
+    });
+
+    // Add click listener to map
+    map.value.addListener('click', (event) => {
+      const clickedLocation = {
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng()
+      }
+      
+      if (clickedLocation.lat < MK_BOUNDS.south || 
+          clickedLocation.lat > MK_BOUNDS.north ||
+          clickedLocation.lng < MK_BOUNDS.west || 
+          clickedLocation.lng > MK_BOUNDS.east) {
+        
+        if (currentMarker) {
+          currentMarker.setMap(null)
+          currentMarker = null
+        }
+        locationInput.value.value = ''
+        report.value.location = ''
+        return
+      }
+
+      setMarker(clickedLocation)
+      geocoder.value.geocode(
+        { 
+          location: clickedLocation,
+          region: 'MK',
+          language: 'en'
+        },
+        (results, status) => {
+          if (status === 'OK' && results[0]) {
+            const result = results[0]
+            let street = '', city = '', neighborhood = '', streetNumber = ''
+            
+            for (const component of result.address_components) {
+              if (component.types.includes('route')) {
+                street = component.long_name;
+              }
+              if (component.types.includes('street_number')) {
+                streetNumber = component.long_name;
+              }
+              if (component.types.includes('locality') || 
+                  component.types.includes('postal_town')) {
+                city = component.long_name;
+              }
+              if (component.types.includes('sublocality') ||
+                  component.types.includes('neighborhood')) {
+                neighborhood = component.long_name;
+              }
             }
-            if (component.types.includes('street_number')) {
-              streetNumber = component.long_name;
+            
+            // Combine street number with street name if both exist
+            if (streetNumber && street) {
+              street = `${streetNumber} ${street}`
             }
-            if (component.types.includes('locality') || 
-                component.types.includes('postal_town')) {
-              city = component.long_name;
-            }
-            if (component.types.includes('sublocality') ||
-                component.types.includes('neighborhood')) {
-              neighborhood = component.long_name;
-            }
+
+            // Build address with all available components
+            let addressParts = []
+            if (street) addressParts.push(street)
+            if (neighborhood) addressParts.push(neighborhood)
+            if (city) addressParts.push(city)
+            addressParts.push('North Macedonia')
+            
+            let formattedAddress = addressParts.join(', ')
+            
+            locationInput.value.value = formattedAddress
+            report.value.location = formattedAddress
           }
-          
-          // Combine street number with street name if both exist
-          if (streetNumber && street) {
-            street = `${streetNumber} ${street}`
+        }
+      )
+    })
+
+    
+    placeAutocomplete.addListener('place_changed', () => {
+      const place = placeAutocomplete.getPlace()
+      if (!place.geometry) {
+        locationInput.value.value = ''
+        return
+      }
+
+      const location = place.geometry.location
+      
+      if (location.lat() < MK_BOUNDS.south || 
+          location.lat() > MK_BOUNDS.north ||
+          location.lng() < MK_BOUNDS.west || 
+          location.lng() > MK_BOUNDS.east) {
+        locationInput.value.value = ''
+        return
+      }
+
+      setMarker(location)
+      map.value.setCenter(location)
+      map.value.setZoom(18) // Higher zoom level for street-level detail
+      
+     
+      // Initialize all address components
+      let street = '', city = '', neighborhood = '', streetNumber = '';
+      
+      if (place.address_components) {
+        for (const component of place.address_components) {
+          if (component.types.includes('route')) {
+            street = component.long_name;
           }
-
-          // Build address with all available components
-          let addressParts = []
-          if (street) addressParts.push(street)
-          if (neighborhood) addressParts.push(neighborhood)
-          if (city) addressParts.push(city)
-          addressParts.push('North Macedonia')
-          
-          let formattedAddress = addressParts.join(', ')
-          
-          locationInput.value.value = formattedAddress
-          report.value.location = formattedAddress
+          if (component.types.includes('street_number')) {
+            streetNumber = component.long_name;
+          }
+          if (component.types.includes('locality') || 
+              component.types.includes('administrative_area_level_3') ||
+              component.types.includes('postal_town')) {
+            city = component.long_name;
+          }
+          if (component.types.includes('sublocality_level_1') ||
+              component.types.includes('neighborhood') ||
+              component.types.includes('political')) {
+            neighborhood = component.long_name;
+          }
         }
-      }
-    )
-  })
 
-  
-  placeAutocomplete.addListener('place_changed', () => {
-    const place = placeAutocomplete.getPlace()
-    if (!place.geometry) {
-      locationInput.value.value = ''
-      return
-    }
-
-    const location = place.geometry.location
-    
-    if (location.lat() < MK_BOUNDS.south || 
-        location.lat() > MK_BOUNDS.north ||
-        location.lng() < MK_BOUNDS.west || 
-        location.lng() > MK_BOUNDS.east) {
-      locationInput.value.value = ''
-      return
-    }
-
-    setMarker(location)
-    map.value.setCenter(location)
-    map.value.setZoom(18) // Higher zoom level for street-level detail
-    
-   
-    // Initialize all address components
-    let street = '', city = '', neighborhood = '', streetNumber = '';
-    
-    if (place.address_components) {
-      for (const component of place.address_components) {
-        if (component.types.includes('route')) {
-          street = component.long_name;
-        }
-        if (component.types.includes('street_number')) {
-          streetNumber = component.long_name;
-        }
-        if (component.types.includes('locality') || 
-            component.types.includes('administrative_area_level_3') ||
-            component.types.includes('postal_town')) {
-          city = component.long_name;
-        }
-        if (component.types.includes('sublocality_level_1') ||
-            component.types.includes('neighborhood') ||
-            component.types.includes('political')) {
-          neighborhood = component.long_name;
+        // Combine street number with street name if both exist
+        if (streetNumber && street) {
+          street = `${streetNumber} ${street}`;
         }
       }
 
-      // Combine street number with street name if both exist
-      if (streetNumber && street) {
-        street = `${streetNumber} ${street}`;
-      }
-    }
+      // Format address with all available components
+      let addressParts = [];
+      if (street) addressParts.push(street);
+      if (neighborhood) addressParts.push(neighborhood);
+      if (city) addressParts.push(city);
+      addressParts.push('North Macedonia');
+      
+      let formattedAddress = addressParts.join(', ');
 
-    // Format address with all available components
-    let addressParts = [];
-    if (street) addressParts.push(street);
-    if (neighborhood) addressParts.push(neighborhood);
-    if (city) addressParts.push(city);
-    addressParts.push('North Macedonia');
-    
-    let formattedAddress = addressParts.join(', ');
+      report.value.location = formattedAddress
+      locationInput.value.value = formattedAddress
+    })
 
-    report.value.location = formattedAddress
-    locationInput.value.value = formattedAddress
-  })
-
-  mapLoaded.value = true
+    mapLoaded.value = true
+  } catch (error) {
+    console.error('Error loading Google Maps:', error)
+    error.value = 'Failed to load map. Please try again later.'
+  }
 }
 
 
@@ -354,20 +365,6 @@ async function doReverseGeocode(position) {
   } catch (err) {
     console.error('Reverse geocoding error:', err)
   }
-}
-
-function loadGoogleMapsScript() {
-  const script = document.createElement('script')
-  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDpWUZETJqKI8vsWrIhp29Shrp73KNRozA&libraries=places,geometry&region=MK&language=en`
-  script.async = true
-  script.defer = true
-  script.onerror = () => {
-    error.value = 'Failed to load Google Maps. Please try refreshing the page.'
-  }
-  script.onload = () => {
-    initMap()
-  }
-  document.head.appendChild(script)
 }
 
 function handleImageUpload(event) {
@@ -446,11 +443,7 @@ async function submitReport() {
 }
 
 onMounted(() => {
-  if (window.google && window.google.maps) {
-    initMap()
-  } else {
-    loadGoogleMapsScript()
-  }
+  initMap();
 })
 </script>
 
@@ -555,43 +548,51 @@ textarea.form-input {
 .submit-button {
   width: 100%;
   padding: 1rem;
-  background: #4CAF50;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
 }
 
-.submit-button:hover {
-  background: #45a049;
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(76, 175, 80, 0.3);
+}
+
+.submit-button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .submit-button:disabled {
-  background: #9e9e9e;
+  background: #bdc3c7;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .error-message {
   margin-top: 1rem;
-  padding: 0.8rem;
-  background: #ffebee;
-  color: #c62828;
+  padding: 1rem;
+  background: #f8d7da;
+  color: #721c24;
   border-radius: 8px;
   text-align: center;
+  border: 2px solid #f5c6cb;
+  font-weight: 500;
 }
 
 .loading-spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid white;
-  border-top: 2px solid transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

@@ -9,14 +9,14 @@
     </div>
 
     <div v-if="isAdmin" class="dashboard-actions">
-      <button class="btn btn-primary" @click="showAddDogModal = true">
+      <button class="button button-primary" @click="showAddDogModal = true">
         Add New Dog
       </button>
     </div>
 
     <div class="dashboard-grid" :class="{ 'admin-grid': isAdmin }">
       <!-- Dogs List -->
-      <div class="dashboard-card dogs-card">
+      <div class="content-card dogs-card">
         <div class="card-header">
           <h3>Available Dogs</h3>
         </div>
@@ -28,12 +28,12 @@
           
           <div v-else-if="error" class="error-state">
             <p>{{ error }}</p>
-            <button class="btn btn-primary" @click="fetchDogs">Try Again</button>
+            <button class="button button-primary" @click="fetchDogs">Try Again</button>
           </div>
 
           <div v-else-if="dogs.length === 0" class="empty-state">
             <p>No dogs available at the moment.</p>
-            <button v-if="isAdmin" class="btn btn-primary" @click="showDogModal = true">Add First Dog</button>
+            <button v-if="isAdmin" class="button button-primary" @click="showDogModal = true">Add First Dog</button>
           </div>
 
           <div v-for="dog in dogs" v-else :key="dog.AnimalId" class="list-item dog-item">
@@ -47,12 +47,10 @@
               <p class="dog-description">{{ dog.Description }}</p>
             </div>
             <div v-if="isAdmin" class="dog-actions">
-              <button class="btn btn-edit" @click="editDog(dog)">
-                <span class="btn-icon">✏️</span>
+              <button class="button button-edit" @click="editDog(dog)">
                 Edit
               </button>
-              <button class="btn btn-delete" @click="deleteDog(dog.AnimalId)">
-                <span class="btn-icon">🗑️</span>
+              <button class="button button-delete" @click="deleteDog(dog.AnimalId)">
                 Delete
               </button>
             </div>
@@ -63,7 +61,7 @@
       <!-- Admin Only Sections -->
       <template v-if="isAdmin">
         <!-- Volunteers List -->
-        <div class="dashboard-card">
+        <div class="content-card">
           <div class="card-header">
             <h3>Volunteer Applications</h3>
           </div>
@@ -79,10 +77,10 @@
                 <p>Experience: {{ volunteer.Experience }}</p>
               </div>
               <div class="volunteer-actions">
-                <button class="btn btn-success" :disabled="volunteer.Status === 'Approved'" @click="updateVolunteerStatus(volunteer.VolunteerId, 'Approved')">
+                <button class="button button-success" :disabled="volunteer.Status === 'Approved'" @click="updateVolunteerStatus(volunteer.VolunteerId, 'Approved')">
                   Approve
                 </button>
-                <button class="btn btn-danger" :disabled="volunteer.Status === 'Rejected'" @click="updateVolunteerStatus(volunteer.VolunteerId, 'Rejected')">
+                <button class="button button-danger" :disabled="volunteer.Status === 'Rejected'" @click="updateVolunteerStatus(volunteer.VolunteerId, 'Rejected')">
                   Reject
                 </button>
               </div>
@@ -94,10 +92,10 @@
         </div>
 
         <!-- Donations List -->
-        <div class="dashboard-card">
+        <div class="content-card">
           <div class="card-header">
             <h3>Recent Donations</h3>
-            <button class="btn btn-secondary" @click="openHistoryModal('donations', 'Donation History')">View All</button>
+            <button class="button button-secondary" @click="openHistoryModal('donations', 'Donation History')">View All</button>
           </div>
           <div class="list-content">
             <div v-for="donation in donations" :key="donation.DonationId" class="list-item">
@@ -108,138 +106,130 @@
             </div>
           </div>
         </div>
+
+        <!-- Adoption Applications -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3>Adoption Applications</h3>
+            <button class="button button-secondary" @click="openHistoryModal('adoptions', 'Adoption History')">View All</button>
+          </div>
+          <div class="list-content">
+            <div v-for="application in allAdoptions" :key="application.AdoptionId" class="list-item">
+              <div class="application-info">
+                <h4>{{ application.Name }}</h4>
+                <div class="contact-info">
+                  <span>Email: {{ application.Email }}</span>
+                  <span>Phone: {{ application.Phone }}</span>
+                </div>
+                <p>Home Type: {{ application.HomeType }}</p>
+                <p>Has Pets: {{ application.HasPets ? 'Yes' : 'No' }}</p>
+                <p v-if="application.ExistingPets">Existing Pets: {{ application.ExistingPets }}</p>
+                <p>Has Yard: {{ application.HasYard ? 'Yes' : 'No' }}</p>
+                <p>Work Schedule: {{ application.WorkSchedule }}</p>
+                <p>Experience: {{ application.Experience }}</p>
+              </div>
+              <div class="application-actions">
+                <button class="button button-success" @click="updateAdoptionStatus(application.AdoptionId, 'Approved')">
+                  Approve
+                </button>
+                <button class="button button-danger" @click="updateAdoptionStatus(application.AdoptionId, 'Rejected')">
+                  Reject
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reports List -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3>Stray Reports</h3>
+            <button class="button button-secondary" @click="openHistoryModal('reports', 'Report History')">View All</button>
+          </div>
+          <div class="list-content">
+            <div v-for="report in allReports" :key="report.ReportId" class="list-item">
+              <div class="report-info">
+                <div class="report-header">
+                  <span class="report-location">{{ report.Location }}</span>
+                  <span class="report-status" :class="report.Status.toLowerCase()">{{ report.Status }}</span>
+                </div>
+                <div class="report-details">
+                  <p>{{ report.Details }}</p>
+                  <div v-if="report.Images && report.Images.length > 0" class="image-gallery">
+                    <img v-for="(image, index) in JSON.parse(report.Images)" :key="index" :src="image" alt="Report image" class="report-image" @click="openImage(image)">
+                  </div>
+                  <div v-if="report.Coordinates" class="coordinates">
+                    {{ formatCoordinates(JSON.parse(report.Coordinates)) }}
+                  </div>
+                </div>
+              </div>
+              <div class="report-actions">
+                <button class="button button-success" @click="updateReportStatus(report.ReportId, 'Resolved')">
+                  Mark as Resolved
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </template>
     </div>
-  </div>
 
-  <!-- Add/Edit Dog Modal -->
-  <div v-if="showDogModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>{{ editingDog ? 'Edit Dog' : 'Add New Dog' }}</h3>
-        <button class="btn-close" @click="closeDogModal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <form class="dog-form" @submit.prevent="saveDog">
+    <!-- Modals -->
+    <div v-if="showDogModal" class="modal-overlay" @click.self="closeDogModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>{{ isEditing ? 'Edit Dog' : 'Add New Dog' }}</h3>
+          <button class="modal-close" @click="closeDogModal">&times;</button>
+        </div>
+        <form class="modal-form" @submit.prevent="handleDogSubmit">
           <div class="form-group">
-            <label>Name</label>
-            <input v-model="dogForm.Name" required class="form-input">
+            <label for="dogName">Name</label>
+            <input id="dogName" v-model="currentDog.Name" type="text" required class="form-input-field">
           </div>
           <div class="form-group">
-            <label>Breed</label>
-            <input v-model="dogForm.Breed" required class="form-input">
+            <label for="dogBreed">Breed</label>
+            <input id="dogBreed" v-model="currentDog.Breed" type="text" required class="form-input-field">
           </div>
           <div class="form-group">
-            <label>Age</label>
-            <input v-model="dogForm.Age" type="number" required class="form-input">
+            <label for="dogAge">Age</label>
+            <input id="dogAge" v-model="currentDog.Age" type="number" required class="form-input-field">
           </div>
           <div class="form-group">
-            <label>Description</label>
-            <textarea v-model="dogForm.Description" required class="form-input"></textarea>
+            <label for="dogDescription">Description</label>
+            <textarea id="dogDescription" v-model="currentDog.Description" required class="form-input-field"></textarea>
           </div>
           <div class="form-group">
-            <label>Upload Image</label>
-            <input class="form-input" type="file" accept="image/*" @change="handleImageUpload">
+            <label for="dogImage">Image</label>
+            <input id="dogImage" type="file" class="form-input-field" @change="handleImageUpload">
+            <img v-if="currentDog.Image" :src="currentDog.Image" alt="Dog preview" class="image-preview">
           </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <button type="button" class="btn btn-secondary" @click="closeDogModal">Cancel</button>
+          <div class="modal-actions">
+            <button type="button" class="button button-secondary" @click="closeDogModal">Cancel</button>
+            <button type="submit" class="button button-primary">{{ isEditing ? 'Save Changes' : 'Add Dog' }}</button>
           </div>
         </form>
       </div>
     </div>
-  </div>
 
-  <!-- Image Modal -->
-  <div v-if="showImageModal" class="modal" @click="showImageModal = false">
-    <div class="modal-image-container">
-      <img :src="selectedImage" alt="Full size image" class="modal-image">
-    </div>
-  </div>
-
-  <!-- History Modal -->
-  <div v-if="showHistoryModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>{{ historyModalTitle }}</h3>
-        <button class="btn-close" @click="closeHistoryModal">&times;</button>
+    <div v-if="showHistoryModal" class="modal-overlay" @click.self="closeHistoryModal">
+      <div class="modal-content history-modal">
+        <div class="modal-header">
+          <h3>{{ historyTitle }}</h3>
+          <button class="modal-close" @click="closeHistoryModal">&times;</button>
+        </div>
+        <div class="history-content">
+          <!-- Render history content based on historyType -->
+        </div>
+        <div class="modal-actions">
+          <button class="button button-secondary" @click="closeHistoryModal">Close</button>
+        </div>
       </div>
-        
-      <div class="modal-body">
-        <!-- Donations History -->
-        <div v-if="historyType === 'donations'" class="history-list">
-          <div v-for="donation in allDonations" :key="donation.DonationId" class="history-item">
-            <div class="history-item-main">
-              <span class="item-amount">${{ donation.amount }}</span>
-              <span class="item-date">{{ formatDate(donation.date) }}</span>
-            </div>
-            <div class="history-item-details">
-              <span>Transaction ID: {{ donation.transactionId }}</span>
-            </div>
-          </div>
-        </div>
+    </div>
 
-        <!-- Reports History -->
-        <div v-if="historyType === 'reports'" class="history-list">
-          <div v-for="report in allReports" :key="report.ReportId" class="history-item">
-            <div class="history-item-main">
-              <div>
-                <span class="item-location">{{ report.Location }}</span>
-                <span class="item-status" :class="report.Status.toLowerCase()">{{ report.Status }}</span>
-              </div>
-              <span class="item-date">{{ formatDate(report.CreatedAt) }}</span>
-            </div>
-            <div class="history-item-details">
-              <p>{{ report.Details }}</p>
-              <div v-if="report.Images && report.Images.length > 0" class="image-gallery">
-                <img v-for="(image, index) in JSON.parse(report.Images)" :key="index" :src="image" alt="Report image" class="report-image" @click="openImage(image)">
-              </div>
-              <div v-if="report.Coordinates" class="coordinates">
-                {{ formatCoordinates(JSON.parse(report.Coordinates)) }}
-              </div>
-              <div v-if="isAdmin" class="action-buttons">
-                <button v-for="status in ['Pending', 'In Progress', 'Resolved']" :key="status" :class="['btn', 'status-btn', status.toLowerCase()]" :disabled="report.Status === status" @click="updateReportStatus(report.ReportId, status)">{{ status }}</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Volunteers History -->
-        <div v-if="historyType === 'volunteers'" class="history-list">
-          <div v-for="volunteer in allVolunteers" :key="volunteer.VolunteerId" class="history-item">
-            <div class="history-item-main">
-              <span class="item-name">{{ volunteer.Name }}</span>
-              <div class="contact-info">
-                <span class="item-location">{{ volunteer.Location }}</span>
-                <span class="item-phone">{{ volunteer.Phone }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Adoptions History -->
-        <div v-if="historyType === 'adoptions'" class="history-list">
-          <div v-for="adoption in allAdoptions" :key="adoption.AdoptionId" class="history-item">
-            <div class="history-item-main">
-              <span class="item-name">{{ adoption.Name }}</span>
-              <span class="item-status">Status: {{ adoption.Status }}</span>
-            </div>
-            <div class="history-item-details">
-              <div class="contact-info">
-                <span class="item-email">Email: {{ adoption.Email }}</span>
-                <span class="item-phone">Phone: {{ adoption.Phone }}</span>
-              </div>
-              <div class="adoption-details">
-                <p>Home Type: {{ adoption.HomeType }}</p>
-                <p>Has Pets: {{ adoption.HasPets ? 'Yes' : 'No' }}</p>
-                <p v-if="adoption.ExistingPets">Existing Pets: {{ adoption.ExistingPets }}</p>
-                <p>Has Yard: {{ adoption.HasYard ? 'Yes' : 'No' }}</p>
-                <p>Work Schedule: {{ adoption.WorkSchedule }}</p>
-                <p>Experience: {{ adoption.Experience }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div v-if="showImageModal" class="modal-overlay" @click.self="closeImageModal">
+      <div class="modal-content image-modal">
+        <img :src="currentImage" alt="Full size dog photo">
+        <button class="modal-close" @click="closeImageModal">&times;</button>
       </div>
     </div>
   </div>
@@ -250,52 +240,41 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 // State
-const isAdmin = ref(false)
-const user = ref(null)
 const dogs = ref([])
 const volunteers = ref([])
 const donations = ref([])
-const showDogModal = ref(false)
-const showImageModal = ref(false)
-const showHistoryModal = ref(false)
-const historyType = ref('')
-const historyModalTitle = ref('')
-const selectedImage = ref('')
-const editingDog = ref(null)
-const isLoading = ref(true)
-const error = ref('')
+const user = ref(null)
+const isAdmin = ref(false)
+const isLoading = ref(false)
+const error = ref(null)
 
-// History data
-const allDonations = ref([])
+// Modal states
+const showDogModal = ref(false)
+const showHistoryModal = ref(false)
+const showImageModal = ref(false)
+const isEditing = ref(false)
+const currentDog = ref({})
+const currentImage = ref('')
+const historyType = ref('')
+const historyTitle = ref('')
+
+// All data for history modals
 const allReports = ref([])
-const allVolunteers = ref([])
 const allAdoptions = ref([])
 
-const dogForm = ref({
-  Name: '',
-  Breed: '',
-  Age: null,
-  Description: '',
-  Image: null
-})
+const router = useRouter()
 
 // Dog operations
 function editDog(dog) {
-  editingDog.value = dog
-  dogForm.value = { ...dog }
+  isEditing.value = true
+  currentDog.value = { ...dog }
   showDogModal.value = true
 }
 
 function closeDogModal() {
   showDogModal.value = false
-  editingDog.value = null
-  dogForm.value = {
-    Name: '',
-    Breed: '',
-    Age: null,
-    Description: '',
-    Image: null
-  }
+  isEditing.value = false
+  currentDog.value = {}
 }
 
 function handleImageUpload(event) {
@@ -303,36 +282,59 @@ function handleImageUpload(event) {
   if (file) {
     const reader = new FileReader()
     reader.onloadend = () => {
-      dogForm.value.Image = reader.result
+      currentDog.value.Image = reader.result
     }
     reader.readAsDataURL(file)
   }
 }
 
-async function saveDog() {
-  try {
-    const token = localStorage.getItem('token')
-    const method = editingDog.value ? 'PUT' : 'POST'
-    const url = editingDog.value 
-      ? `http://localhost:5000/api/animals/${editingDog.value.AnimalId}`
-      : 'http://localhost:5000/api/animals'
+async function handleDogSubmit() {
+  if (isEditing.value) {
+    // Update dog
+    try {
+      const response = await fetch(`http://localhost:5000/api/animals/${currentDog.value.AnimalId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(currentDog.value)
+      })
 
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(dogForm.value)
-    })
+      if (!response.ok) throw new Error('Failed to update dog')
 
-    if (!response.ok) throw new Error('Failed to save dog')
+      const updatedDog = await response.json()
+      const index = dogs.value.findIndex(d => d.AnimalId === updatedDog.AnimalId)
+      if (index !== -1) {
+        dogs.value[index] = updatedDog
+      }
+    } catch (error) {
+      console.error('Error updating dog:', error)
+      alert('Failed to update dog. Please try again.')
+    } finally {
+      closeDogModal()
+    }
+  } else {
+    // Add new dog
+    try {
+      const response = await fetch('http://localhost:5000/api/animals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(currentDog.value)
+      })
 
-    // Refresh dogs list
-    fetchDogs()
-    closeDogModal()
-  } catch (error) {
-    console.error('Error saving dog:', error)
+      if (!response.ok) throw new Error('Failed to add dog')
+
+      const newDog = await response.json()
+      dogs.value.push(newDog)
+      closeDogModal()
+    } catch (error) {
+      console.error('Error adding dog:', error)
+      alert('Failed to add dog. Please try again.')
+    }
   }
 }
 
@@ -340,18 +342,16 @@ async function deleteDog(animalId) {
   if (!confirm('Are you sure you want to delete this dog?')) return
 
   try {
-    const token = localStorage.getItem('token')
     const response = await fetch(`http://localhost:5000/api/animals/${animalId}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     })
 
     if (!response.ok) throw new Error('Failed to delete dog')
 
-    // Refresh dogs list
-    fetchDogs()
+    dogs.value = dogs.value.filter(dog => dog.AnimalId !== animalId)
   } catch (error) {
     console.error('Error deleting dog:', error)
   }
@@ -360,7 +360,6 @@ async function deleteDog(animalId) {
 // Volunteer operations
 async function updateVolunteerStatus(volunteerId, status) {
   try {
-    console.log('Updating volunteer status:', { volunteerId, status });
     const token = localStorage.getItem('token')
     const response = await fetch(`http://localhost:5000/api/volunteers/${volunteerId}/status`, {
       method: 'PUT',
@@ -368,7 +367,7 @@ async function updateVolunteerStatus(volunteerId, status) {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ status }) // Changed from Status to status to match backend
+      body: JSON.stringify({ status })
     })
 
     if (!response.ok) {
@@ -377,7 +376,6 @@ async function updateVolunteerStatus(volunteerId, status) {
     }
 
     const updatedVolunteer = await response.json();
-    console.log('Updated volunteer:', updatedVolunteer);
 
     // Update volunteer status in list
     const index = volunteers.value.findIndex(v => v.VolunteerId === volunteerId);
@@ -391,12 +389,9 @@ async function updateVolunteerStatus(volunteerId, status) {
 
 // Image handling
 function openImage(image) {
-  selectedImage.value = image
+  currentImage.value = image
   showImageModal.value = true
 }
-
-// Router
-const router = useRouter()
 
 // Computed
 // Fetch data functions
@@ -442,14 +437,12 @@ async function fetchDogs() {
 
 async function fetchVolunteers() {
   try {
-    console.log('Fetching volunteers...'); // Debug log
     const token = localStorage.getItem('token');
     if (!token) {
       console.error('No token found');
       return;
     }
 
-    console.log('Making request to /api/volunteers'); // Debug log
     const response = await fetch('http://localhost:5000/api/volunteers', {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -463,7 +456,6 @@ async function fetchVolunteers() {
     }
 
     const data = await response.json();
-    console.log('Raw volunteer data:', data); // Debug log
 
     if (!Array.isArray(data)) {
       throw new Error('Expected array of volunteers but got: ' + typeof data);
@@ -478,8 +470,6 @@ async function fetchVolunteers() {
       Experience: volunteer.Experience || '',
       Status: volunteer.Status || 'Pending'
     }));
-    
-    console.log('Processed volunteers:', volunteers.value); // Debug log
   } catch (error) {
     console.error('Error fetching volunteers:', error);
   }
@@ -541,12 +531,12 @@ function formatDate(date) {
 function closeHistoryModal() {
   showHistoryModal.value = false
   historyType.value = ''
-  historyModalTitle.value = ''
+  historyTitle.value = ''
 }
 
 function openHistoryModal(type, title) {
   historyType.value = type
-  historyModalTitle.value = title
+  historyTitle.value = title
   showHistoryModal.value = true
 }
 
@@ -572,8 +562,7 @@ onMounted(async () => {
 <style scoped>
 .dashboard {
   padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  background-color: #f9f9f9;
 }
 
 .dashboard-header {
@@ -583,98 +572,165 @@ onMounted(async () => {
   margin-bottom: 2rem;
 }
 
+.dashboard-actions {
+  margin-bottom: 2rem;
+}
+
 .dashboard-grid {
   display: grid;
+  grid-template-columns: 1fr;
   gap: 2rem;
 }
 
-/* Normal user grid - only shows dogs */
-.dashboard-grid:not(.admin-grid) {
-  grid-template-columns: 1fr;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-/* Admin grid - shows all sections */
 .admin-grid {
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
 }
 
-.dashboard-card {
-  background: white;
+.content-card {
+  background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
 }
 
 .list-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  padding: 1.5rem;
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 .list-item {
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.list-item-main {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.item-amount {
-  font-weight: bold;
-  color: #4CAF50;
+.list-item:last-child {
+  border-bottom: none;
 }
 
-.item-date {
+.dog-item {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 1rem;
+  align-items: start;
+}
+
+.dog-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.dog-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dog-info h4 {
+  margin: 0 0 0.5rem;
+}
+
+.dog-info p {
+  margin: 0.25rem 0;
   color: #666;
+}
+
+.dog-description {
   font-size: 0.9rem;
+  color: #888;
+  white-space: pre-wrap;
 }
 
-.item-location {
-  font-weight: 500;
+.dog-actions, .volunteer-actions, .application-actions, .report-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.item-name {
-  font-weight: 500;
+.volunteer-info, .application-info, .report-info {
+  flex-grow: 1;
 }
 
-.item-phone {
-  color: #666;
+.contact-details {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0.5rem 0;
 }
 
-.modal {
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: capitalize;
+  justify-self: start;
+  margin-top: 0.5rem;
+}
+
+.status-badge.approved {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.resolved {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+/* Modal Styles */
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
 }
 
 .modal-content {
-  background: white;
+  background: #fff;
   padding: 2rem;
   border-radius: 8px;
-  max-width: 800px;
   width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-width: 500px;
+  position: relative;
 }
 
 .modal-header {
@@ -682,385 +738,77 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
 }
 
-.btn-close {
+.modal-close {
   background: none;
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  padding: 0;
-  color: #666;
+  color: #888;
 }
 
-.history-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.modal-form .form-group {
+  margin-bottom: 1rem;
 }
 
-.history-item {
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.history-item-details {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
+.form-input-field {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
 }
 
-.btn-secondary {
-  background: #e0e0e0;
-  color: #333;
-}
-
-.btn-secondary:hover {
-  background: #d0d0d0;
-}
-
-.item-status {
-  font-weight: 500;
-  color: #2196F3;
-}
-
-.item-email {
-  color: #666;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-}
-
-.contact-info {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.adoption-details {
+.image-preview {
   margin-top: 1rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.5rem;
-}
-
-.dashboard-actions {
-  margin-bottom: 2rem;
-}
-
-.btn-primary {
-  background: #4CAF50;
-  color: white;
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background 0.2s;
-}
-
-.btn-primary:hover {
-  background: #45a049;
-}
-
-.dogs-card {
-  grid-column: 1 / -1;
-}
-
-.dog-item {
-  display: grid;
-  grid-template-columns: 120px 1fr auto;
-  gap: 1.5rem;
-  align-items: center;
-}
-
-.dog-image {
-  width: 120px;
-  height: 120px;
+  max-width: 100px;
+  border-radius: 4px;
   overflow: hidden;
-  border-radius: 8px;
-  background-color: #f5f5f5;
+}
+
+.modal-actions {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid #e0e0e0;
-}
-
-.dog-thumbnail {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.2s ease-in-out;
-}
-
-.dog-thumbnail:hover {
-  transform: scale(1.05);
-  cursor: pointer;
-}
-
-.dog-info h4 {
-  margin: 0 0 0.5rem 0;
-  color: #333;
-}
-
-.dog-info p {
-  margin: 0.25rem 0;
-  color: #666;
-  line-height: 1.4;
-}
-
-.dog-info strong {
-  color: #333;
-}
-
-.dog-description {
-  margin-top: 0.5rem !important;
-  font-style: italic;
-  color: #555 !important;
-}
-
-.btn-icon {
-  margin-right: 4px;
-  font-size: 1.1em;
-}
-
-.loading-state,
-.error-state,
-.empty-state {
-  padding: 2rem;
-  text-align: center;
-  color: #666;
-}
-
-.loading-state .loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #4CAF50;
-  border-top: 3px solid transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-.error-state {
-  color: #c62828;
-}
-
-.error-state button {
-  margin-top: 1rem;
-}
-
-.empty-state {
-  padding: 3rem;
-}
-
-.dog-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn-edit {
-  background: #2196F3;
-  color: white;
-}
-
-.btn-delete {
-  background: #f44336;
-  color: white;
-}
-
-.btn-success {
-  background: #4CAF50;
-  color: white;
-}
-
-.btn-danger {
-  background: #f44336;
-  color: white;
-}
-
-.volunteer-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  margin-top: 1rem;
-}
-
-.status-badge.pending {
-  background: #fff3e0;
-  color: #f57c00;
-}
-
-.status-badge.approved {
-  background: #e8f5e9;
-  color: #388e3c;
-}
-
-.status-badge.rejected {
-  background: #ffebee;
-  color: #d32f2f;
-}
-
-.volunteer-info h4 {
-  margin: 0 0 0.5rem 0;
-}
-
-.contact-details {
-  display: flex;
+  justify-content: flex-end;
   gap: 1rem;
-  color: #666;
-  font-size: 0.9rem;
+  margin-top: 2rem;
 }
 
-.donation-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.history-modal {
+  max-width: 800px;
 }
 
-.donation-amount {
-  font-weight: bold;
-  color: #4CAF50;
-  font-size: 1.1rem;
-}
-
-.donation-date {
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.dog-form {
-  display: grid;
-  gap: 1rem;
-}
-
-.report-image {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.report-image:hover {
-  transform: scale(1.05);
-}
-
-.coordinates {
-  font-family: monospace;
-  margin-top: 0.5rem;
-  color: #666;
-}
-
-.action-buttons {
-  margin-top: 1rem;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.status-btn {
-  padding: 0.3rem 0.8rem;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
-}
-
-.status-btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.status-btn.pending {
-  background: #ffb74d;
-  color: #fff;
-}
-
-.status-btn.in-progress {
-  background: #64b5f6;
-  color: #fff;
-}
-
-.status-btn.resolved {
-  background: #81c784;
-  color: #fff;
-}
-
-.item-status {
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  margin-left: 0.5rem;
-}
-
-.item-status.pending {
-  background: #fff3e0;
-  color: #f57c00;
-}
-
-.item-status.in-progress {
-  background: #e3f2fd;
-  color: #1976d2;
-}
-
-.item-status.resolved {
-  background: #e8f5e9;
-  color: #388e3c;
-}
-
-@media (max-width: 768px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-content {
-    width: 95%;
-    margin: 1rem;
-  }
-
-  .image-gallery {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
-
-  .report-image {
-    height: 120px;
-  }
-
-  .action-buttons {
-    flex-wrap: wrap;
-  }
-}
-
-.modal-image-container {
-  max-width: 90%;
+.image-modal {
+  padding: 0;
+  background: none;
+  max-width: 90vw;
   max-height: 90vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.modal-image {
+.image-modal img {
   max-width: 100%;
-  max-height: 90vh;
-  object-fit: contain;
+  max-height: 100%;
   border-radius: 8px;
+}
+
+.image-modal .modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: white;
+  background: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-state, .error-state, .empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
 }
 </style>

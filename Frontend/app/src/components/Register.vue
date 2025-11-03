@@ -2,7 +2,7 @@
 <template>
   <div class="auth-page">
     <div class="auth-container">
-      <div class="auth-card">
+      <div class="content-card">
         <div class="auth-header">
           <h2>Admin Registration</h2>
           <p>Create a new administrator account</p>
@@ -20,7 +20,7 @@
               type="text"
               required 
               :disabled="isLoading"
-              class="form-input"
+              class="form-input-field"
             >
           </div>
           
@@ -32,7 +32,7 @@
               type="password"
               required 
               :disabled="isLoading"
-              class="form-input"
+              class="form-input-field"
             >
             <div class="password-requirements">
               Password must contain:
@@ -43,6 +43,19 @@
                 <li :class="{ met: /\d/.test(password) }">One number</li>
               </ul>
             </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input 
+              id="email"
+              v-model="email" 
+              type="email"
+              required 
+              :disabled="isLoading"
+              class="form-input-field"
+              placeholder="admin@example.com"
+            >
           </div>
 
           <div 
@@ -56,7 +69,7 @@
           <button 
             type="submit" 
             :disabled="isLoading"
-            class="auth-button"
+            class="button"
           >
             <span
               v-if="isLoading"
@@ -77,6 +90,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const username = ref('')
 const password = ref('')
+const email = ref('')
 const error = ref('')
 const isLoading = ref(false)
 
@@ -108,14 +122,22 @@ const register = async () => {
   }
 
   try {
+    // Get the token from localStorage
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Access token is missing')
+    }
+
     const response = await fetch('http://localhost:5000/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
         username: username.value,
-        password: password.value
+        password: password.value,
+        email: email.value
       })
     })
 
@@ -142,20 +164,20 @@ const register = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 2rem;
 }
 
 .auth-container {
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
 }
 
-.auth-card {
+.content-card {
   background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
 }
 
 .auth-header {
@@ -164,14 +186,16 @@ const register = async () => {
 }
 
 .auth-header h2 {
-  color: #333;
+  color: #2c3e50;
   margin: 0 0 0.5rem 0;
   font-size: 1.8rem;
+  font-weight: 600;
 }
 
 .auth-header p {
-  color: #666;
+  color: #7f8c8d;
   margin: 0;
+  font-size: 0.95rem;
 }
 
 .auth-form {
@@ -185,82 +209,105 @@ const register = async () => {
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: #2c3e50;
   font-weight: 500;
+  font-size: 0.95rem;
 }
 
-.form-input {
-  width: 90%;
+.form-input-field {
+  width: 100%;
   padding: 0.8rem;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
-.form-input:focus {
+.form-input-field:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input-field:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
 }
 
 .password-requirements {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #666;
+  margin-top: 0.75rem;
+  padding: 0.8rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #555;
 }
 
 .password-requirements ul {
   list-style: none;
   padding-left: 0;
-  margin: 0.5rem 0;
+  margin: 0.5rem 0 0 0;
 }
 
 .password-requirements li {
-  margin: 0.25rem 0;
-  padding-left: 1.5rem;
+  margin: 0.4rem 0;
+  padding-left: 1.8rem;
   position: relative;
+  color: #e74c3c;
 }
 
 .password-requirements li::before {
   content: '✕';
   position: absolute;
   left: 0;
-  color: #f44336;
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.password-requirements li.met {
+  color: #27ae60;
 }
 
 .password-requirements li.met::before {
   content: '✓';
-  color: #4CAF50;
+  color: #27ae60;
 }
 
-.auth-button {
+.button {
   width: 100%;
   padding: 1rem;
-  background: #4CAF50;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
 }
 
-.auth-button:hover {
-  background: #45a049;
+.button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
 }
 
-.auth-button:disabled {
-  background: #9e9e9e;
+.button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.button:disabled {
+  background: #bdc3c7;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .error-message {
-  background: #ffebee;
+  background: #ffe6e6;
   color: #c62828;
   padding: 0.8rem;
   border-radius: 8px;
@@ -268,29 +315,15 @@ const register = async () => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.auth-footer {
-  text-align: center;
-  margin-top: 1.5rem;
-  color: #666;
-}
-
-.auth-footer a {
-  color: #4CAF50;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.auth-footer a:hover {
-  text-decoration: underline;
+  border-left: 4px solid #c62828;
+  font-size: 0.95rem;
 }
 
 .loading-spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid white;
-  border-top: 2px solid transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -305,8 +338,12 @@ const register = async () => {
     padding: 1rem;
   }
 
-  .auth-card {
+  .content-card {
     padding: 1.5rem;
+  }
+
+  .auth-header h2 {
+    font-size: 1.5rem;
   }
 }
 </style>

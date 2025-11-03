@@ -2,7 +2,7 @@
 <template>
   <div class="auth-page">
     <div class="auth-container">
-      <div class="auth-card">
+      <div class="content-card">
         <div class="auth-header">
           <h2>Admin Login</h2>
           <p>Sign in to access the admin dashboard</p>
@@ -16,7 +16,7 @@
               type="text"
               required 
               :disabled="isLoading"
-              class="form-input"
+              class="form-input-field"
             >
           </div>
           
@@ -28,7 +28,7 @@
               type="password"
               required 
               :disabled="isLoading"
-              class="form-input"
+              class="form-input-field"
             >
           </div>
 
@@ -40,7 +40,7 @@
           <button 
             type="submit" 
             :disabled="isLoading"
-            class="auth-button"
+            class="button"
           >
             <span v-if="isLoading" class="loading-spinner" />
             {{ isLoading ? 'Signing in...' : 'Sign In' }}
@@ -116,7 +116,7 @@ const login = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 2rem;
 }
 
@@ -125,11 +125,11 @@ const login = async () => {
   max-width: 400px;
 }
 
-.auth-card {
+.content-card {
   background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
 }
 
 .auth-header {
@@ -138,14 +138,16 @@ const login = async () => {
 }
 
 .auth-header h2 {
-  color: #333;
+  color: #2c3e50;
   margin: 0 0 0.5rem 0;
   font-size: 1.8rem;
+  font-weight: 600;
 }
 
 .auth-header p {
-  color: #666;
+  color: #7f8c8d;
   margin: 0;
+  font-size: 0.95rem;
 }
 
 .auth-form {
@@ -159,52 +161,66 @@ const login = async () => {
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: #2c3e50;
   font-weight: 500;
+  font-size: 0.95rem;
 }
 
-.form-input {
-  width: 90%;
+.form-input-field {
+  width: 100%;
   padding: 0.8rem;
   border: 2px solid #e0e0e0;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
-.form-input:focus {
+.form-input-field:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.auth-button {
+.form-input-field:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.button {
   width: 100%;
   padding: 1rem;
-  background: #4CAF50;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
 }
 
-.auth-button:hover {
-  background: #45a049;
+.button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
 }
 
-.auth-button:disabled {
-  background: #9e9e9e;
+.button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.button:disabled {
+  background: #bdc3c7;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .error-message {
-  background: #ffebee;
+  background: #ffe6e6;
   color: #c62828;
   padding: 0.8rem;
   border-radius: 8px;
@@ -212,13 +228,15 @@ const login = async () => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  border-left: 4px solid #c62828;
+  font-size: 0.95rem;
 }
 
 .loading-spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid white;
-  border-top: 2px solid transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -233,8 +251,12 @@ const login = async () => {
     padding: 1rem;
   }
 
-  .auth-card {
+  .content-card {
     padding: 1.5rem;
+  }
+
+  .auth-header h2 {
+    font-size: 1.5rem;
   }
 }
 </style>

@@ -1,15 +1,15 @@
 import express from 'express';
-import paypalController from '../controllers/paypalController.js';
+import { createOrder, captureOrder } from '../controllers/paypalController.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { pool, sql } from '../config/db.js';
 
 const router = express.Router();
 
 // Create PayPal order
-router.post('/orders', paypalController.createOrder);
+router.post('/orders', createOrder);
 
 // Capture PayPal order
-router.post('/orders/:orderID/capture', paypalController.captureOrder);
+router.post('/orders/:orderID/capture', captureOrder);
 
 // Get all donations (admin only)
 router.get('/donations', authenticateToken, async (req, res) => {

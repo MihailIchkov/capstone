@@ -4,7 +4,7 @@
   <div class="adopt-container">
     <h2>Dogs Available for Adoption</h2>
     <div v-if="dogs.length" class="dogs-grid">
-    <div v-for="Animal in dogs" :key="Animal.AnimalId" class="dog-card">
+    <div v-for="Animal in dogs" :key="Animal.AnimalId" class="content-card">
       <div class="dog-image">
         <img :src="getImageUrl(Animal.Image)" :alt="Animal.Name">
       </div>
@@ -13,7 +13,7 @@
         <p><strong>Breed:</strong> {{ Animal.Breed }}</p>
         <p><strong>Age:</strong> {{ Animal.Age }} years</p>
         <p class="dog-description">{{ Animal.Description }}</p>
-        <button class="adopt-button" @click="adoptDog(Animal.AnimalId)">Adopt Now</button>
+        <button class="button" @click="adoptDog(Animal.AnimalId)">Adopt Now</button>
       </div>
     </div>
     </div>
@@ -67,6 +67,13 @@ onMounted(() => {
   padding: 2rem;
 }
 
+.adopt-container h2 {
+  color: #333;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 2rem;
+}
+
 .dogs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -74,24 +81,25 @@ onMounted(() => {
   padding: 2rem 0;
 }
 
-.dog-card {
+.content-card {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   overflow: hidden;
   background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: transform 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  transition: all 0.3s ease;
 }
 
-.dog-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+.content-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 
 .dog-image {
   width: 100%;
-  height: 200px;
+  height: 250px;
   overflow: hidden;
+  background: #f5f5f5;
 }
 
 .dog-image img {
@@ -106,44 +114,58 @@ onMounted(() => {
 
 .dog-info h3 {
   margin: 0 0 1rem 0;
-  color: #333;
-  font-size: 1.5rem;
+  color: #2c3e50;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 
 .dog-info p {
   margin: 0.5rem 0;
-  color: #666;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.dog-info p strong {
+  color: #2c3e50;
 }
 
 .dog-description {
   margin: 1rem 0;
   font-style: italic;
-  color: #555;
-  line-height: 1.4;
+  color: #666;
+  line-height: 1.5;
+  font-size: 0.9rem;
 }
 
-.adopt-button {
+.button {
   width: 100%;
   padding: 0.8rem;
   margin-top: 1rem;
   background-color: #4CAF50;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 1rem;
-  transition: background-color 0.2s;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.adopt-button:hover {
+.button:hover {
   background-color: #45a049;
+  transform: scale(1.02);
+}
+
+.button:active {
+  transform: scale(0.98);
 }
 
 .no-dogs {
   text-align: center;
-  color: #666;
+  color: #999;
   font-style: italic;
-  padding: 2rem;
+  padding: 3rem 2rem;
+  font-size: 1.1rem;
 }
 
 @media (max-width: 768px) {

@@ -9,6 +9,7 @@
       Loading PayPal...
     </div>
     
+    <!-- PayPal button container - always in DOM -->
     <div id="paypal-button-container"></div>
     
     <div 
@@ -20,7 +21,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, nextTick } from 'vue'
 
 // State
 const isPayPalLoaded = ref(false)
@@ -36,21 +37,55 @@ function showMessage(message, success = true) {
 
 // Load PayPal SDK
 function loadPayPalScript() {
-  return new Promise((resolve) => {
-    // Using sandbox client ID directly for testing
+  return new Promise((resolve, reject) => {
+    // Check if PayPal is already loaded
+    if (window.paypal) {
+      isPayPalLoaded.value = true
+      resolve()
+      return
+    }
+
+    // Check if script already exists
+    if (document.getElementById('paypal-sdk-script')) {
+      resolve()
+      return
+    }
+
+    const clientId = process.env.VUE_APP_PAYPAL_CLIENT_ID
+    if (!clientId) {
+      reject(new Error('PayPal Client ID is not configured'))
+      return
+    }
+
     const script = document.createElement('script')
-    script.src = 'https://www.paypal.com/sdk/js?client-id=test&currency=MKD&components=buttons,payment-fields,marks'
+    script.id = 'paypal-sdk-script'
+    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=MKD&components=buttons,payment-fields,marks&disable-funding=credit,card`
+    
     script.onload = () => {
       isPayPalLoaded.value = true
       resolve()
     }
+    
+    script.onerror = () => {
+      reject(new Error('Failed to load PayPal SDK'))
+    }
+    
     document.body.appendChild(script)
   })
 }
 
 // Initialize PayPal buttons
 function initializePayPal() {
-  if (!window.paypal) return
+  if (!window.paypal) {
+    console.error('PayPal SDK not loaded')
+    return
+  }
+
+  const container = document.getElementById('paypal-button-container')
+  if (!container) {
+    console.error('PayPal container not found')
+    return
+  }
 
   window.paypal
     .Buttons({
@@ -141,6 +176,10 @@ function initializePayPal() {
 onMounted(async () => {
   try {
     await loadPayPalScript()
+    // Wait for DOM to be fully updated
+    await nextTick()
+    // Additional small delay for browser rendering
+    await new Promise(resolve => setTimeout(resolve, 50))
     initializePayPal()
   } catch (error) {
     console.error('Failed to load PayPal:', error)
@@ -151,48 +190,63 @@ onMounted(async () => {
 
 <style scoped>
 .donate-container {
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
 }
 
 h2 {
-  color: #333;
+  color: #2c3e50;
   margin-bottom: 1rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.donate-container > p {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
 }
 
 .loading-message {
-  padding: 1rem;
-  color: #666;
+  padding: 1.5rem;
+  color: #7f8c8d;
   font-style: italic;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 1rem 0;
 }
 
 .result-message {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   padding: 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
   text-align: center;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
 }
 
 .result-message.success {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  border: 1px solid #a5d6a7;
+  background-color: #d4edda;
+  color: #155724;
+  border: 2px solid #28a745;
 }
 
 .result-message.error {
-  background-color: #ffebee;
-  color: #c62828;
-  border: 1px solid #ef9a9a;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 2px solid #f5c6cb;
 }
 
 #paypal-button-container {
-  margin: 2rem auto;
+  margin: 2.5rem auto;
   max-width: 750px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 1rem;
 }
 
 /* Ensure payment fields align properly */
@@ -204,5 +258,30 @@ h2 {
 /* Force left alignment for payment fields */
 .paymentFieldsWrapper {
   margin-left: 0 !important;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .donate-container {
+    padding: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  #paypal-button-container {
+    max-width: 100%;
+  }
 }
 </style>

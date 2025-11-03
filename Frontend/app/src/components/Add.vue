@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/html-self-closing, vue/html-closing-bracket-newline, vue/no-parsing-error, vue/singleline-html-element-content-newline, vue/first-attribute-linebreak, vue/max-attributes-per-line, vue/attributes-order -->
 <template>
-  <div class="add-dog-form">
+  <div class="content-card">
     <h2>Add a New Dog</h2>
     <form 
       enctype="multipart/form-data"
@@ -15,6 +15,7 @@
           v-model="dog.name"
           placeholder="Dog's name"
           required
+          class="form-input-field"
         >
       </div>
       
@@ -27,6 +28,7 @@
           v-model="dog.breed"
           placeholder="Dog's breed"
           required
+          class="form-input-field"
         >
       </div>
       
@@ -41,6 +43,7 @@
           min="0"
           placeholder="Age in years"
           required
+          class="form-input-field"
         >
       </div>
       
@@ -54,6 +57,7 @@
           accept="image/png, image/jpeg, image/jpg"
           required
           @change="handleImageSelect"
+          class="form-input-field"
         >
         <div
           v-if="previewUrl"
@@ -69,6 +73,7 @@
       <button
         type="submit"
         :disabled="isSubmitting"
+        class="button"
       >
         {{ isSubmitting ? 'Adding Dog...' : 'Add Dog' }}
       </button>
@@ -118,9 +123,9 @@ async function submitDog() {
 
   try {
     const formData = new FormData()
-    formData.append('name', dog.value.name)
-    formData.append('breed', dog.value.breed)
-    formData.append('age', dog.value.age)
+    formData.append('Name', dog.value.name)
+    formData.append('Breed', dog.value.breed)
+    formData.append('Age', dog.value.age)
     formData.append('image', selectedFile.value)
 
     const token = localStorage.getItem('token')

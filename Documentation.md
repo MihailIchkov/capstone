@@ -1,73 +1,73 @@
-# Animal Shelter Management System Documentation
+Animal Shelter Management System Documentation
 
-## Executive Summary
+Executive Summary
 
-The Animal Shelter Management System is a comprehensive web-based solution designed to streamline and automate the operations of animal shelters. This system facilitates animal management, volunteer coordination, adoption processes, and donation handling through an intuitive user interface and robust backend infrastructure.
+The Animal Shelter Management System is a comprehensive web based solution designed to streamline and automate the operations of animal shelters. This system facilitates animal management, volunteer coordination, adoption processes, and donation handling through an intuitive user interface and robust backend infrastructure.
 
-### Key Features
-- Centralized animal record management
-- Streamlined adoption process
-- Volunteer application and management
-- Secure payment processing for donations
-- Administrative dashboard for oversight
-- Role-based access control
-- Real-time status updates
-- Image management system
+Key Features
+Centralized animal record management
+Streamlined adoption process
+Volunteer application and management
+Secure payment processing for donations
+Administrative dashboard for oversight
+Role based access control
+Real time status updates
+Image management system
 
-### Technical Highlights
-- Modern Vue.js frontend with component-based architecture
-- RESTful API backend using Node.js/Express
-- SQL Server database with optimized schema
-- JWT-based authentication and authorization
-- PayPal integration for secure payments
-- Responsive design for mobile accessibility
+Technical Highlights
+Modern Vue.js frontend with component based architecture
+RESTful API backend using Node.js/Express
+SQL Server database with optimized schema
+JWT based authentication and authorization
+PayPal integration for secure payments
+Responsive design for mobile accessibility
 
-## Table of Contents
+Table of Contents
 1. Introduction
-   - Project Overview
-   - System Architecture
-   - Technology Stack
+   Project Overview
+   System Architecture
+   Technology Stack
 
 2. System Requirements
-   - Hardware Requirements
-   - Software Requirements
-   - Development Environment Setup
+   Hardware Requirements
+   Software Requirements
+   Development Environment Setup
 
 3. Frontend Architecture (Vue.js)
-   - Component Structure
-   - State Management
-   - Routing System
-   - Authentication Flow
-   - Key Features
-     - Dashboard
-     - Animal Management
-     - Volunteer Management
-     - Adoption Process
-     - Donation System
-     - Report Management
+   Component Structure
+   State Management
+   Routing System
+   Authentication Flow
+   Key Features
+     Dashboard
+     Animal Management
+     Volunteer Management
+     Adoption Process
+     Donation System
+     Report Management
 
 4. Backend Architecture (Node.js/Express)
-   - API Structure
-   - Database Schema
-   - Authentication System
-   - File Upload System
-   - Error Handling
-   - Security Measures
+   API Structure
+   Database Schema
+   Authentication System
+   File Upload System
+   Error Handling
+   Security Measures
 
 5. Database Design (SQL Server)
-   - Table Relationships
-   - Schema Design
-   - Stored Procedures
-   - Indexes and Optimization
+   Table Relationships
+   Schema Design
+   Stored Procedures
+   Indexes and Optimization
 
 6. Features Documentation
 
-### Animal Management
-- Adding new animals
-- Updating animal information
-- Deleting animals
-- Image handling
-- Listing and filtering
+Animal Management
+Adding new animals
+Updating animal information
+Deleting animals
+Image handling
+Listing and filtering
 ```javascript
 // Example of animal creation
 async function createAnimal(animalData) {
@@ -83,11 +83,11 @@ async function createAnimal(animalData) {
 }
 ```
 
-### Volunteer System
-- Application process
-- Status management (Pending/Approved/Rejected)
-- Skills tracking
-- Contact information management
+Volunteer System
+Application process
+Status management (Pending/Approved/Rejected)
+Skills tracking
+Contact information management
 ```javascript
 // Volunteer status update example
 async function updateVolunteerStatus(volunteerId, status) {
@@ -103,11 +103,11 @@ async function updateVolunteerStatus(volunteerId, status) {
 }
 ```
 
-### Adoption System
-- Application form
-- Status tracking
-- Applicant evaluation
-- Pet matching system
+Adoption System
+Application form
+Status tracking
+Applicant evaluation
+Pet matching system
 ```javascript
 // Adoption application submission
 async function submitAdoptionForm(formData) {
@@ -122,11 +122,11 @@ async function submitAdoptionForm(formData) {
 }
 ```
 
-### Donation System
-- PayPal integration
-- Transaction tracking
-- Receipt generation
-- Donation history
+Donation System
+PayPal integration
+Transaction tracking
+Receipt generation
+Donation history
 ```javascript
 // PayPal donation processing
 async function processDonation(amount) {
@@ -142,80 +142,80 @@ async function processDonation(amount) {
 ```
 
 7. Security Implementation
-   - JWT Authentication
-   - Role-based Access Control
-   - Input Validation
-   - XSS Prevention
-   - CSRF Protection
-   - SQL Injection Prevention
+   JWT Authentication
+   Role based Access Control
+   Input Validation
+   XSS Prevention
+   CSRF Protection
+   SQL Injection Prevention
 
 8. API Documentation
 
-### Authentication Endpoints
+Authentication Endpoints
 \`\`\`
 POST /api/auth/login
-- Request: { username, password }
-- Response: { token, user }
+Request: { username, password }
+Response: { token, user }
 
 POST /api/auth/register
-- Request: { username, password, role }
-- Response: { success, message }
+Request: { username, password, role }
+Response: { success, message }
 \`\`\`
 
-### Animal Endpoints
+Animal Endpoints
 \`\`\`
 GET /api/animals
-- Response: [{ AnimalId, Name, Breed, Age, Image }]
+Response: [{ AnimalId, Name, Breed, Age, Image }]
 
 POST /api/animals
-- Request: { Name, Breed, Age, Image }
-- Response: { AnimalId, message }
+Request: { Name, Breed, Age, Image }
+Response: { AnimalId, message }
 
 PUT /api/animals/:id
-- Request: { Name?, Breed?, Age?, Image? }
-- Response: { success, message }
+Request: { Name?, Breed?, Age?, Image? }
+Response: { success, message }
 
 DELETE /api/animals/:id
-- Response: { success, message }
+Response: { success, message }
 \`\`\`
 
-### Volunteer Endpoints
+Volunteer Endpoints
 \`\`\`
 POST /api/volunteers
-- Request: { Name, Email, Phone, Skills[], Experience }
-- Response: { VolunteerId, message }
+Request: { Name, Email, Phone, Skills[], Experience }
+Response: { VolunteerId, message }
 
 GET /api/volunteers
-- Response: [{ VolunteerId, Name, Status, Skills }]
+Response: [{ VolunteerId, Name, Status, Skills }]
 
 PUT /api/volunteers/:id/status
-- Request: { status }
-- Response: { success, message }
+Request: { status }
+Response: { success, message }
 \`\`\`
 
-### Adoption Endpoints
+Adoption Endpoints
 \`\`\`
 POST /api/adoptions
-- Request: { AnimalId, ApplicantDetails }
-- Response: { AdoptionId, status }
+Request: { AnimalId, ApplicantDetails }
+Response: { AdoptionId, status }
 
 GET /api/adoptions
-- Response: [{ AdoptionId, AnimalId, Status, ApplicantDetails }]
+Response: [{ AdoptionId, AnimalId, Status, ApplicantDetails }]
 \`\`\`
 
-### Donation Endpoints
+Donation Endpoints
 \`\`\`
 POST /api/donations
-- Request: { amount, paymentDetails }
-- Response: { DonationId, status }
+Request: { amount, paymentDetails }
+Response: { DonationId, status }
 
 GET /api/donations
-- Response: [{ DonationId, Amount, Date, Status }]
+Response: [{ DonationId, Amount, Date, Status }]
 \`\`\`
 
 9. Database Schema
 
-### Animals Table
+Animals Table
 \`\`\`sql
 CREATE TABLE Animals (
     AnimalId INT PRIMARY KEY IDENTITY(1,1),
@@ -228,7 +228,7 @@ CREATE TABLE Animals (
 )
 \`\`\`
 
-### Volunteers Table
+Volunteers Table
 \`\`\`sql
 CREATE TABLE Volunteers (
     VolunteerId INT PRIMARY KEY IDENTITY(1,1),
@@ -242,7 +242,7 @@ CREATE TABLE Volunteers (
 )
 \`\`\`
 
-### Adoptions Table
+Adoptions Table
 \`\`\`sql
 CREATE TABLE AdoptionForms (
     AdoptionId INT PRIMARY KEY IDENTITY(1,1),
@@ -263,7 +263,7 @@ CREATE TABLE AdoptionForms (
 
 10. Error Handling
 
-### Frontend Error Handling
+Frontend Error Handling
 ```javascript
 try {
   const response = await fetch('/api/endpoint');
@@ -277,7 +277,7 @@ try {
 }
 ```
 
-### Backend Error Handling
+Backend Error Handling
 ```javascript
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -289,62 +289,62 @@ app.use((err, req, res, next) => {
 ```
 
 11. Deployment Guide
-    - Server Requirements
-    - Environment Setup
-    - Database Migration
-    - Frontend Build Process
-    - Backend Deployment
-    - SSL Certificate Setup
-    - Domain Configuration
+    Server Requirements
+    Environment Setup
+    Database Migration
+    Frontend Build Process
+    Backend Deployment
+    SSL Certificate Setup
+    Domain Configuration
 
 12. Testing
-    - Unit Testing
-    - Integration Testing
-    - End-to-End Testing
-    - Performance Testing
-    - Security Testing
+    Unit Testing
+    Integration Testing
+    End to End Testing
+    Performance Testing
+    Security Testing
 
 13. Maintenance and Support
-    - Backup Procedures
-    - Monitoring
-    - Update Procedures
-    - Troubleshooting Guide
+    Backup Procedures
+    Monitoring
+    Update Procedures
+    Troubleshooting Guide
 
 14. User Guide
-    - Admin Dashboard
-    - Animal Management
-    - Volunteer Management
-    - Adoption Process
-    - Donation System
-    - Report Generation
+    Admin Dashboard
+    Animal Management
+    Volunteer Management
+    Adoption Process
+    Donation System
+    Report Generation
 
 15. Performance Optimization
-    - Frontend Optimization
-    - Backend Optimization
-    - Database Optimization
-    - Image Optimization
-    - Caching Strategies
+    Frontend Optimization
+    Backend Optimization
+    Database Optimization
+    Image Optimization
+    Caching Strategies
 
 16. Security Measures
-    - Authentication
-    - Authorization
-    - Data Encryption
-    - Input Validation
-    - XSS Prevention
-    - CSRF Protection
-    - SQL Injection Prevention
+    Authentication
+    Authorization
+    Data Encryption
+    Input Validation
+    XSS Prevention
+    CSRF Protection
+    SQL Injection Prevention
 
 17. Future Enhancements
-    - Planned Features
-    - Scalability Considerations
-    - Integration Possibilities
-    - Technology Updates
+    Planned Features
+    Scalability Considerations
+    Integration Possibilities
+    Technology Updates
 
 18. Implementation Details
 
-### Frontend Implementation
+Frontend Implementation
 
-#### Component Structure
+Component Structure
 ```
 src/
 ├── components/
@@ -361,7 +361,7 @@ src/
 │   └── Volunteer.vue    # Volunteer application
 ```
 
-#### State Management
+State Management
 ```javascript
 // Example of reactive state in Vue 3
 const state = reactive({
@@ -374,7 +374,7 @@ const state = reactive({
 });
 ```
 
-#### Authentication Flow
+Authentication Flow
 ```javascript
 // Login implementation
 async function login(credentials) {
@@ -396,9 +396,9 @@ async function login(credentials) {
 }
 ```
 
-### Backend Implementation
+Backend Implementation
 
-#### Middleware Setup
+Middleware Setup
 ```javascript
 // Authentication middleware
 function authenticateToken(req, res, next) {
@@ -413,7 +413,7 @@ function authenticateToken(req, res, next) {
 }
 ```
 
-#### Database Operations
+Database Operations
 ```javascript
 // Example of database query with SQL Server
 async function getAnimalById(id) {
@@ -429,7 +429,7 @@ async function getAnimalById(id) {
 }
 ```
 
-#### File Upload Handler
+File Upload Handler
 ```javascript
 // Multer configuration for image uploads
 const storage = multer.diskStorage({
@@ -443,9 +443,9 @@ const storage = multer.diskStorage({
 });
 ```
 
-### Security Implementations
+Security Implementations
 
-#### Password Hashing
+Password Hashing
 ```javascript
 // Password hashing implementation
 async function hashPassword(password) {
@@ -454,7 +454,7 @@ async function hashPassword(password) {
 }
 ```
 
-#### JWT Token Generation
+JWT Token Generation
 ```javascript
 // JWT token generation
 function generateToken(user) {
@@ -467,10 +467,36 @@ function generateToken(user) {
 ```
 
 19. Appendix
-    - Glossary of Terms
-    - Code Samples
-    - Configuration Examples
-    - Troubleshooting Guide
-    - Additional Resources
-    - Version History
-    - Contributors
+    Glossary of Terms
+    Code Samples
+    Configuration Examples
+    Troubleshooting Guide
+    Additional Resources
+    Version History
+    Contributors
+
+20. References
+
+This project was made possible by utilizing several key technologies, libraries, and APIs.
+
+Core Technologies
+Node.js: A JavaScript runtime environment for the backend.
+Express.js: A web application framework for Node.js.
+Vue.js: A progressive JavaScript framework for building the user interface.
+Microsoft SQL Server: The relational database management system used for data storage.
+
+Backend Libraries
+cors: For enabling Cross Origin Resource Sharing.
+dotenv: For managing environment variables.
+bcryptjs: For hashing passwords securely.
+jsonwebtoken: For implementing JWT based authentication.
+mssql: The driver for connecting to the SQL Server database.
+multer: For handling file uploads (animal images).
+node fetch: For making HTTP requests from the backend to the PayPal API.
+
+Frontend Libraries
+vue router: For handling client side routing within the Vue application.
+
+External APIs and Services
+PayPal API: Used for processing donations securely. The integration is based on the official sample code and guidelines provided by PayPal for their REST API.
+Google Maps Platform: Used for location services, including the Places Autocomplete and Geocoding APIs. The implementation is based on the standard integration examples from the official Google Maps documentation.

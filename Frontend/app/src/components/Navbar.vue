@@ -33,10 +33,10 @@
 
       <div class="auth-buttons">
         <template v-if="!isAuthenticated">
-          <router-link to="/login" class="btn-login">Login</router-link>
+          <router-link to="/login" class="button-login">Login</router-link>
         </template>
         <template v-else>
-          <button @click="handleLogout" class="btn-logout">Logout</button>
+          <button @click="handleLogout" class="button-logout">Logout</button>
         </template>
       </div>
 

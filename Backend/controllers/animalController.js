@@ -42,7 +42,7 @@ export const getAnimalById = async (req, res) => {
 
 export const createAnimal = async (req, res) => {
   try {
-    const { Name, Breed, Age } = req.body;
+    const { Name, Breed, Age, Description } = req.body;
     let ImageUrl = '';
 
     // Validate required fields
@@ -65,14 +65,15 @@ export const createAnimal = async (req, res) => {
     
     // Using parameterized query to prevent SQL injection
     const query = `
-      INSERT INTO Animals (Name, Breed, Age, ImageUrl) 
-      VALUES (@Name, @Breed, @Age, @ImageUrl)
+      INSERT INTO Animals (Name, Breed, Age, ImageUrl, Description) 
+      VALUES (@Name, @Breed, @Age, @ImageUrl, @Description)
     `;
 
     await request.input('Name', sql.NVarChar, Name)
                 .input('Breed', sql.NVarChar, Breed)
                 .input('Age', sql.Int, parseInt(Age))
                 .input('ImageUrl', sql.NVarChar, ImageUrl)
+                .input('Description', sql.NVarChar, Description)
                 .query(query);
 
     res.status(201).json({ 
@@ -87,7 +88,7 @@ export const createAnimal = async (req, res) => {
 
 export const updateAnimal = async (req, res) => {
   const { id } = req.params;
-  const { Name, Breed, Age } = req.body;
+  const { Name, Breed, Age, Description } = req.body;
   let ImageUrl = undefined;
 
   try {
@@ -104,6 +105,7 @@ export const updateAnimal = async (req, res) => {
     if (Breed) updateFields.push('Breed = @Breed');
     if (Age) updateFields.push('Age = @Age');
     if (ImageUrl) updateFields.push('ImageUrl = @ImageUrl');
+    if (Description) updateFields.push('Description = @Description');
 
     if (updateFields.length === 0) {
       return res.status(400).json({ error: 'No fields to update' });
@@ -122,6 +124,7 @@ export const updateAnimal = async (req, res) => {
     if (Breed) updateRequest.input('Breed', sql.NVarChar, Breed);
     if (Age) updateRequest.input('Age', sql.Int, parseInt(Age));
     if (ImageUrl) updateRequest.input('ImageUrl', sql.NVarChar, ImageUrl);
+    if (Description) updateRequest.input('Description', sql.NVarChar, Description);
 
     const result = await updateRequest.query(query);
 

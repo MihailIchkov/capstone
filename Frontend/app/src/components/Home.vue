@@ -7,8 +7,8 @@
         <h1>Welcome to Stray Care</h1>
         <p>Giving every stray dog a chance at a happy life</p>
         <div class="hero-buttons">
-          <router-link to="/adopt" class="btn-primary">Adopt a Dog</router-link>
-          <router-link to="/donate" class="btn-secondary">Make a Donation</router-link>
+          <router-link to="/adopt" class="button button-primary">Adopt a Dog</router-link>
+          <router-link to="/donate" class="button button-secondary">Make a Donation</router-link>
         </div>
       </div>
     </section>
@@ -17,7 +17,7 @@
     <section class="featured-dogs">
       <h2>Dogs Available for Adoption</h2>
       <div class="dogs-grid">
-        <div v-for="dog in featuredDogs" :key="dog.AnimalId" class="dog-card">
+        <div v-for="dog in featuredDogs" :key="dog.AnimalId" class="content-card">
           <div class="dog-image">
             <img :src="getImageUrl(dog.Image)" :alt="dog.Name">
           </div>
@@ -25,11 +25,11 @@
             <h3>{{ dog.Name }}</h3>
             <p>{{ dog.Breed }} • {{ dog.Age }} years</p>
             <p class="dog-brief">{{ dog.Description?.substring(0, 100) }}{{ dog.Description?.length > 100 ? '...' : '' }}</p>
-            <button class="btn-adopt" @click="adoptDog(dog.AnimalId)">Adopt Me</button>
+            <button class="button" @click="adoptDog(dog.AnimalId)">Adopt Me</button>
           </div>
         </div>
       </div>
-      <router-link to="/adopt" class="btn-view-all">View All Dogs</router-link>
+      <router-link to="/adopt" class="button">View All Dogs</router-link>
     </section>
 
     <!-- Our Mission Section -->
@@ -68,7 +68,7 @@
             <p>Learn valuable skills in animal care and rescue operations</p>
           </div>
         </div>
-        <router-link to="/volunteer" class="btn-volunteer">Volunteer With Us</router-link>
+        <router-link to="/volunteer" class="button">Volunteer With Us</router-link>
       </div>
     </section>
   </div>

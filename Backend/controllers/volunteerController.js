@@ -94,7 +94,6 @@ export const getVolunteers = async (req, res) => {
       FROM Volunteers 
       ORDER BY VolunteerId DESC
     `);
-    console.log('Volunteers query result:', result.recordset);
     res.json(result.recordset);
   } catch (error) {
     console.error('Error in getVolunteers:', error);
@@ -145,7 +144,7 @@ export const getLatestVolunteers = async (req, res) => {
       LEFT JOIN VolunteerSkills vs ON v.VolunteerId = vs.VolunteerId
       GROUP BY
         v.VolunteerId, v.Name, v.Email, v.Phone, v.Location,
-        v.Availability, v.Experience, v.Reason
+        v.Availability, v.Experience, v.Reason, v.Status, v.CreatedAt, v.UpdatedAt
       ORDER BY v.VolunteerId DESC
     `);
     res.json(result.recordset);
