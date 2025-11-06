@@ -170,7 +170,9 @@ async function initMap() {
     const google = await loadGoogleMapsAPI(process.env.VUE_APP_GOOGLE_MAPS_API_KEY);
     if (!mapElement.value || !locationInput.value) return;
 
-    const { Map, Geocoder, LatLngBounds, Autocomplete } = google.maps;
+    // Use standard Google Maps API
+    const { Map, Geocoder, LatLngBounds } = google.maps;
+    const { Autocomplete } = google.maps.places;
 
     map.value = new Map(mapElement.value, {
       center: { lat: 41.6086, lng: 21.7453 }, // Center of North Macedonia
@@ -188,7 +190,8 @@ async function initMap() {
     geocoder.value = new Geocoder();
 
     // Initialize Places Autocomplete with street-level precision
-    // Using only 5 types max to comply with API limits
+    // Note: 'address' type cannot be mixed with specific types like 'street_address', 'route', etc
+    // Using only geocode type which returns all address types
     placeAutocomplete = new Autocomplete(locationInput.value, {
       bounds: new LatLngBounds(
         { lat: MK_BOUNDS.south, lng: MK_BOUNDS.west },
@@ -197,7 +200,7 @@ async function initMap() {
       strictBounds: true,
       componentRestrictions: { country: 'MK' },
       fields: ['formatted_address', 'geometry', 'name', 'address_components'],
-      types: ['address', 'street_address', 'route', 'establishment'],
+      types: ['geocode'],
       language: 'en'
     });
 

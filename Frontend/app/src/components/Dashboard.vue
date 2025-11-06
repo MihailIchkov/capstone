@@ -301,6 +301,14 @@ async function handleDogSubmit() {
         body: JSON.stringify(currentDog.value)
       })
 
+      // Handle expired token (401 Unauthorized)
+      if (response.status === 401) {
+        console.error('Token expired - redirecting to login');
+        localStorage.removeItem('token');
+        router.push('/login');
+        return;
+      }
+
       if (!response.ok) throw new Error('Failed to update dog')
 
       const updatedDog = await response.json()
@@ -326,6 +334,14 @@ async function handleDogSubmit() {
         body: JSON.stringify(currentDog.value)
       })
 
+      // Handle expired token (401 Unauthorized)
+      if (response.status === 401) {
+        console.error('Token expired - redirecting to login');
+        localStorage.removeItem('token');
+        router.push('/login');
+        return;
+      }
+
       if (!response.ok) throw new Error('Failed to add dog')
 
       const newDog = await response.json()
@@ -349,6 +365,14 @@ async function deleteDog(animalId) {
       }
     })
 
+    // Handle expired token (401 Unauthorized)
+    if (response.status === 401) {
+      console.error('Token expired - redirecting to login');
+      localStorage.removeItem('token');
+      router.push('/login');
+      return;
+    }
+
     if (!response.ok) throw new Error('Failed to delete dog')
 
     dogs.value = dogs.value.filter(dog => dog.AnimalId !== animalId)
@@ -369,6 +393,14 @@ async function updateVolunteerStatus(volunteerId, status) {
       },
       body: JSON.stringify({ status })
     })
+
+    // Handle expired token (401 Unauthorized)
+    if (response.status === 401) {
+      console.error('Token expired - redirecting to login');
+      localStorage.removeItem('token');
+      router.push('/login');
+      return;
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -440,6 +472,7 @@ async function fetchVolunteers() {
     const token = localStorage.getItem('token');
     if (!token) {
       console.error('No token found');
+      router.push('/login');
       return;
     }
 
@@ -449,6 +482,14 @@ async function fetchVolunteers() {
         'Content-Type': 'application/json'
       }
     });
+
+    // Handle expired token (401 Unauthorized)
+    if (response.status === 401) {
+      console.error('Token expired - redirecting to login');
+      localStorage.removeItem('token');
+      router.push('/login');
+      return;
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -478,12 +519,26 @@ async function fetchVolunteers() {
 async function fetchDonations() {
   try {
     const token = localStorage.getItem('token')
+    if (!token) {
+      console.error('No token found');
+      router.push('/login');
+      return;
+    }
+
     const response = await fetch('http://localhost:5000/api/donations', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     })
+
+    // Handle expired token (401 Unauthorized)
+    if (response.status === 401) {
+      console.error('Token expired - redirecting to login');
+      localStorage.removeItem('token');
+      router.push('/login');
+      return;
+    }
 
     if (!response.ok) throw new Error('Failed to fetch donations')
     const data = await response.json()

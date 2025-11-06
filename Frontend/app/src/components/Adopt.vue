@@ -139,25 +139,25 @@ onMounted(() => {
 
 .button {
   width: 100%;
-  padding: 0.8rem;
+  padding: 0.9rem 2rem;
   margin-top: 1rem;
-  background-color: #4CAF50;
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 25px;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
 .button:hover {
-  background-color: #45a049;
-  transform: scale(1.02);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
 }
 
 .button:active {
-  transform: scale(0.98);
+  transform: translateY(0);
 }
 
 .no-dogs {

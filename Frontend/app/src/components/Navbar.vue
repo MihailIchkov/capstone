@@ -241,7 +241,7 @@ watch(() => router.currentRoute.value, checkAuthStatus)
   gap: 1rem;
 }
 
-.btn-login, .btn-logout {
+.button-login, .button-logout, .btn-login, .btn-logout {
   padding: 0.5rem 1.5rem;
   border-radius: 25px;
   font-weight: 500;
@@ -249,23 +249,24 @@ watch(() => router.currentRoute.value, checkAuthStatus)
   cursor: pointer;
 }
 
-.btn-login {
+.button-login, .btn-login {
   background: #4CAF50;
   color: white;
   text-decoration: none;
+  border: none;
 }
 
-.btn-logout {
+.button-logout, .btn-logout {
   background: none;
   border: 2px solid #4CAF50;
   color: #4CAF50;
 }
 
-.btn-login:hover {
+.button-login:hover, .btn-login:hover {
   background: #45a049;
 }
 
-.btn-logout:hover {
+.button-logout:hover, .btn-logout:hover {
   background: #4CAF50;
   color: white;
 }

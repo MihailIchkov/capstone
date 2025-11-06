@@ -164,7 +164,7 @@ const register = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
   padding: 2rem;
 }
 
@@ -226,8 +226,8 @@ const register = async () => {
 
 .form-input-field:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
 }
 
 .form-input-field:disabled {
@@ -266,21 +266,21 @@ const register = async () => {
 }
 
 .password-requirements li.met {
-  color: #27ae60;
+  color: #2E7D32;
 }
 
 .password-requirements li.met::before {
   content: '✓';
-  color: #27ae60;
+  color: #2E7D32;
 }
 
 .button {
   width: 100%;
-  padding: 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 0.9rem 2rem;
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 25px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -293,7 +293,7 @@ const register = async () => {
 
 .button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
 }
 
 .button:active:not(:disabled) {

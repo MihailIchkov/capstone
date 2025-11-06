@@ -46,8 +46,21 @@ function loadPayPalScript() {
     }
 
     // Check if script already exists
-    if (document.getElementById('paypal-sdk-script')) {
-      resolve()
+    const existingScript = document.getElementById('paypal-sdk-script')
+    if (existingScript) {
+      // Wait for it to load
+      let attempts = 0
+      const checkReady = setInterval(() => {
+        attempts++
+        if (window.paypal) {
+          clearInterval(checkReady)
+          isPayPalLoaded.value = true
+          resolve()
+        } else if (attempts > 100) { // 10 second timeout
+          clearInterval(checkReady)
+          reject(new Error('PayPal SDK took too long to load'))
+        }
+      }, 100)
       return
     }
 
@@ -62,8 +75,19 @@ function loadPayPalScript() {
     script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=MKD&components=buttons,payment-fields,marks&disable-funding=credit,card`
     
     script.onload = () => {
-      isPayPalLoaded.value = true
-      resolve()
+      // Wait for paypal object to be available
+      let attempts = 0
+      const checkReady = setInterval(() => {
+        attempts++
+        if (window.paypal) {
+          clearInterval(checkReady)
+          isPayPalLoaded.value = true
+          resolve()
+        } else if (attempts > 50) { // 5 second timeout
+          clearInterval(checkReady)
+          reject(new Error('PayPal object not available after script load'))
+        }
+      }, 100)
     }
     
     script.onerror = () => {
@@ -78,14 +102,19 @@ function loadPayPalScript() {
 function initializePayPal() {
   if (!window.paypal) {
     console.error('PayPal SDK not loaded')
+    showMessage('PayPal SDK failed to load', false)
     return
   }
 
   const container = document.getElementById('paypal-button-container')
   if (!container) {
-    console.error('PayPal container not found')
+    console.error('PayPal container not found in DOM')
+    showMessage('PayPal container not found', false)
     return
   }
+
+  // Clear any previous content
+  container.innerHTML = ''
 
   window.paypal
     .Buttons({
@@ -175,11 +204,22 @@ function initializePayPal() {
 // Component mounted
 onMounted(async () => {
   try {
+    // First load the PayPal script
     await loadPayPalScript()
+    
     // Wait for DOM to be fully updated
     await nextTick()
-    // Additional small delay for browser rendering
-    await new Promise(resolve => setTimeout(resolve, 50))
+    
+    // Additional delay for browser rendering
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    // Verify container exists before initializing
+    const container = document.getElementById('paypal-button-container')
+    if (!container) {
+      throw new Error('PayPal button container not found in DOM after mounting')
+    }
+    
+    // Initialize PayPal buttons
     initializePayPal()
   } catch (error) {
     console.error('Failed to load PayPal:', error)

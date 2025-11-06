@@ -24,10 +24,12 @@ async function initializeLocationAutocomplete() {
     const google = await loadGoogleMapsAPI(process.env.VUE_APP_GOOGLE_MAPS_API_KEY)
     if (!locationInput.value) return
 
-    const { Autocomplete } = google.maps
+    // Use standard Google Maps API
+    const { Autocomplete } = google.maps.places
+    const { LatLngBounds } = google.maps
     
     // Set North Macedonia bounds
-    const bounds = new google.maps.LatLngBounds(
+    const bounds = new LatLngBounds(
       { lat: 40.8537, lng: 20.4524 }, // SW corner
       { lat: 42.3583, lng: 23.0347 }  // NE corner
     )
