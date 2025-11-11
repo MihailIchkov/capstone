@@ -9,38 +9,38 @@
         </router-link>
       </div>
 
-      <div class="nav-links" :class="{ 'active': isMenuOpen }">
-        <router-link to="/" class="nav-link">Home</router-link>
-        <router-link to="/adopt" class="nav-link">Adopt</router-link>
-        <router-link to="/donate" class="nav-link">Donate</router-link>
-        <router-link to="/report" class="nav-link">Report a Stray</router-link>
-        <router-link to="/volunteer" class="nav-link">Volunteer</router-link>
+      <div class="navigation-links" :class="{ 'active': isMenuOpen }">
+        <router-link to="/" class="navigation-link">Home</router-link>
+        <router-link to="/adopt" class="navigation-link">Adopt</router-link>
+        <router-link to="/donate" class="navigation-link">Donate</router-link>
+        <router-link to="/report" class="navigation-link">Report a Stray</router-link>
+        <router-link to="/volunteer" class="navigation-link">Volunteer</router-link>
         
         <template v-if="isAdmin">
-          <div class="dropdown">
-            <button class="dropdown-toggle">
+          <div class="dropdown-container">
+            <button class="dropdown-toggle-button">
               Admin
-              <span class="arrow">▼</span>
+              <span class="dropdown-arrow">▼</span>
             </button>
-            <div class="dropdown-menu">
-              <router-link to="/dashboard" class="dropdown-item">Dashboard</router-link>
-              <router-link to="/add" class="dropdown-item">Add a Dog</router-link>
-              <router-link to="/register" class="dropdown-item">Register an Admin</router-link>
+            <div class="dropdown-menu-container">
+              <router-link to="/dashboard" class="dropdown-menu-item">Dashboard</router-link>
+              <router-link to="/add" class="dropdown-menu-item">Add a Dog</router-link>
+              <router-link to="/register" class="dropdown-menu-item">Register an Admin</router-link>
             </div>
           </div>
         </template>
       </div>
 
-      <div class="auth-buttons">
+      <div class="authentication-buttons">
         <template v-if="!isAuthenticated">
-          <router-link to="/login" class="button-login">Login</router-link>
+          <router-link to="/login" class="button-login-link">Login</router-link>
         </template>
         <template v-else>
-          <button @click="handleLogout" class="button-logout">Logout</button>
+          <button @click="handleLogout" class="button-logout-action">Logout</button>
         </template>
       </div>
 
-      <button class="menu-toggle" @click="toggleMenu">
+      <button class="mobile-menu-toggle" @click="toggleMenu">
         <span />
         <span />
         <span />
@@ -90,7 +90,7 @@ function toggleMenu() {
 
 // Close menu when clicking outside
 function handleClickOutside(event) {
-  if (isMenuOpen.value && !event.target.closest('.nav-links')) {
+  if (isMenuOpen.value && !event.target.closest('.navigation-links')) {
     isMenuOpen.value = false
   }
 }
@@ -150,21 +150,22 @@ watch(() => router.currentRoute.value, checkAuthStatus)
   background: transparent;
 }
 
-.nav-links {
+.navigation-links {
   display: flex;
   gap: 2rem;
   align-items: center;
 }
 
-.nav-link {
+.navigation-link {
   text-decoration: none;
   color: #333;
   font-weight: 500;
+  font-size: 1rem;
   transition: color 0.2s;
   position: relative;
 }
 
-.nav-link:after {
+.navigation-link:after {
   content: '';
   position: absolute;
   bottom: -5px;
@@ -175,15 +176,19 @@ watch(() => router.currentRoute.value, checkAuthStatus)
   transition: width 0.2s;
 }
 
-.nav-link:hover:after {
+.navigation-link:hover {
+  color: #4CAF50;
+}
+
+.navigation-link:hover:after {
   width: 100%;
 }
 
-.dropdown {
+.dropdown-container {
   position: relative;
 }
 
-.dropdown-toggle {
+.dropdown-toggle-button {
   background: none;
   border: none;
   font-size: 1rem;
@@ -194,13 +199,18 @@ watch(() => router.currentRoute.value, checkAuthStatus)
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  transition: color 0.2s;
 }
 
-.dropdown:hover .dropdown-menu {
+.dropdown-toggle-button:hover {
+  color: #4CAF50;
+}
+
+.dropdown-container:hover .dropdown-menu-container {
   display: block;
 }
 
-.dropdown-menu {
+.dropdown-menu-container {
   display: none;
   position: absolute;
   top: 100%;
@@ -216,12 +226,12 @@ watch(() => router.currentRoute.value, checkAuthStatus)
   z-index: 1000;
 }
 
-.dropdown:hover .dropdown-menu {
+.dropdown-container:hover .dropdown-menu-container {
   opacity: 1;
   transform: translateY(0);
 }
 
-.dropdown-item {
+.dropdown-menu-item {
   display: block;
   padding: 0.8rem 1.2rem;
   text-decoration: none;
@@ -230,48 +240,47 @@ watch(() => router.currentRoute.value, checkAuthStatus)
   font-weight: 500;
 }
 
-.dropdown-item:hover {
+.dropdown-menu-item:hover {
   background: #f5f5f5;
   color: #4CAF50;
   padding-left: 1.5rem;
 }
 
-.auth-buttons {
+.authentication-buttons {
   display: flex;
   gap: 1rem;
 }
 
-.button-login, .button-logout, .btn-login, .btn-logout {
-  padding: 0.5rem 1.5rem;
+.button-login-link, .button-logout-action {
+  padding: 0.6rem 1.8rem;
   border-radius: 25px;
   font-weight: 500;
   transition: all 0.2s;
   cursor: pointer;
+  font-size: 1rem;
 }
 
-.button-login, .btn-login {
+.button-login-link {
   background: #4CAF50;
   color: white;
   text-decoration: none;
-  border: none;
 }
 
-.button-logout, .btn-logout {
-  background: none;
-  border: 2px solid #4CAF50;
-  color: #4CAF50;
-}
-
-.button-login:hover, .btn-login:hover {
-  background: #45a049;
-}
-
-.button-logout:hover, .btn-logout:hover {
+.button-logout-action {
   background: #4CAF50;
+  border: none;
   color: white;
 }
 
-.menu-toggle {
+.button-login-link:hover {
+  background: #45a049;
+}
+
+.button-logout-action:hover {
+  background: #45a049;
+}
+
+.mobile-menu-toggle {
   display: none;
   flex-direction: column;
   gap: 6px;
@@ -281,7 +290,7 @@ watch(() => router.currentRoute.value, checkAuthStatus)
   padding: 0.5rem;
 }
 
-.menu-toggle span {
+.mobile-menu-toggle span {
   display: block;
   width: 25px;
   height: 2px;
@@ -290,7 +299,7 @@ watch(() => router.currentRoute.value, checkAuthStatus)
 }
 
 @media (max-width: 968px) {
-  .nav-links {
+  .navigation-links {
     display: none;
     position: absolute;
     top: 70px;
@@ -303,30 +312,30 @@ watch(() => router.currentRoute.value, checkAuthStatus)
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   }
 
-  .nav-links.active {
+  .navigation-links.active {
     display: flex;
   }
 
-  .dropdown {
+  .dropdown-container {
     width: 100%;
   }
 
-  .dropdown-toggle {
+  .dropdown-toggle-button {
     width: 100%;
     justify-content: center;
   }
 
-  .dropdown-menu {
+  .dropdown-menu-container {
     position: static;
     box-shadow: none;
     margin-top: 0.5rem;
   }
 
-  .menu-toggle {
+  .mobile-menu-toggle {
     display: flex;
   }
 
-  .auth-buttons {
+  .authentication-buttons {
     margin-left: auto;
   }
 }

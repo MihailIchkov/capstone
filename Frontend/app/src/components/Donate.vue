@@ -72,7 +72,7 @@ function loadPayPalScript() {
 
     const script = document.createElement('script')
     script.id = 'paypal-sdk-script'
-    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=MKD&components=buttons,payment-fields,marks&disable-funding=credit,card`
+    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&components=buttons,payment-fields,marks&disable-funding=credit,card`
     
     script.onload = () => {
       // Wait for paypal object to be available
@@ -144,16 +144,31 @@ function initializePayPal() {
         .then(response => {
           if (!response.ok) {
             return response.json().then(err => {
-              throw new Error(err.error || 'Failed to create order')
+              const errorMsg = err.error || `HTTP ${response.status}: Failed to create order`
+              console.error('Backend error response:', err)
+              throw new Error(errorMsg)
+            }).catch(parseError => {
+              console.error('Could not parse error response:', parseError)
+              throw new Error(`HTTP ${response.status}: Failed to create order`)
             })
           }
           return response.json()
         })
         .then(orderData => {
-          if (orderData.DonationId) {
-            return orderData.DonationId
+          console.log('Full order data received from backend:', orderData)
+          console.log('Available fields in response:', Object.keys(orderData))
+          
+          // Try multiple field names for order ID
+          const orderId = orderData.DonationId || orderData.id || orderData.OrderId
+          if (!orderId) {
+            console.error('ERROR: No order ID found in response')
+            console.error('Available fields:', Object.keys(orderData))
+            console.error('Full response:', orderData)
+            throw new Error('No order ID received from server')
           }
-          throw new Error('No order ID received')
+          
+          console.log('Successfully extracted order ID:', orderId)
+          return orderId
         })
         .catch(error => {
           console.error('Create order error:', error)

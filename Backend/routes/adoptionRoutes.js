@@ -6,7 +6,7 @@ import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 const router = express.Router();
 
 router.post('/animals/:id/adopt', createAdoption);
-router.get('/adoptions', authenticateToken, getAdoptions);
-router.patch('/adoptions/:id', authenticateToken, updateAdoptionStatus);
+router.get('/adoptions', authenticateToken, requireAdmin, getAdoptions);
+router.patch('/adoptions/:id', authenticateToken, requireAdmin, updateAdoptionStatus);
 
 export default router;

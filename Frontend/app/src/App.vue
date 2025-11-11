@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import Layout from './components/Layout.vue'
+import Layout from './ui/Layout.vue'
 </script>
 
 <style>
@@ -46,24 +46,13 @@ body, html {
 
 /* Default button styling */
 .button {
-  padding: 0.9rem 2rem;
-  border-radius: 25px;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   transition: all 0.3s ease;
-  background: linear-gradient(135deg, #4CAF50, #2E7D32);
-  color: white;
-}
-
-.button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
-}
-
-.button:active {
-  transform: translateY(0);
 }
 
 /* Primary action button style */

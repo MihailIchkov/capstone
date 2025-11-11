@@ -48,6 +48,19 @@
       </div>
       
       <div class="form-group">
+        <label for="description">
+          Description:
+        </label>
+        <textarea
+          id="description"
+          v-model="dog.description"
+          placeholder="Enter a description of the dog"
+          rows="4"
+          class="form-input-field"
+        ></textarea>
+      </div>
+      
+      <div class="form-group">
         <label for="image">
           Image:
         </label>
@@ -101,7 +114,8 @@ const selectedFile = ref(null)
 const dog = ref({
   name: '',
   breed: '',
-  age: null
+  age: null,
+  description: ''
 })
 
 function handleImageSelect(event) {
@@ -126,6 +140,7 @@ async function submitDog() {
     formData.append('Name', dog.value.name)
     formData.append('Breed', dog.value.breed)
     formData.append('Age', dog.value.age)
+    formData.append('Description', dog.value.description)
     formData.append('image', selectedFile.value)
 
     const token = localStorage.getItem('token')

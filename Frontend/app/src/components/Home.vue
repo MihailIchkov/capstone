@@ -36,16 +36,7 @@
     <section class="mission">
       <div class="mission-content">
         <h2>Our Mission</h2>
-        <p><b>We are dedicated to reducing and controlling the stray dog population through</b></p>
-        <ul>
-          <p>Rescuing and rehabilitating stray dogs</p>
-
-          <p>Providing medical care and sterilization</p>
-
-          <p>Finding loving forever homes</p>
-
-          <p>Promoting responsible pet ownership</p>
-        </ul>
+        <p>We are dedicated to reducing and controlling the stray dog population through rescuing and rehabilitating stray dogs providing medical care and sterilization finding loving forever homes and promoting responsible pet ownership</p>
       </div>
     </section>
 
@@ -83,8 +74,7 @@ const featuredDogs = ref([])
 
 function getImageUrl(imageUrl) {
   if (!imageUrl) return '/placeholder-dog.jpg'
-  if (imageUrl.startsWith('http')) return imageUrl
-  return `http://localhost:5000/uploads/${imageUrl}`
+  return imageUrl
 }
 
 async function fetchFeaturedDogs() {
@@ -181,7 +171,7 @@ onMounted(() => {
   margin: 2rem 0;
 }
 
-.dog-card {
+.content-card {
   background: white;
   border-radius: 10px;
   overflow: hidden;
@@ -189,7 +179,7 @@ onMounted(() => {
   transition: transform 0.2s;
 }
 
-.dog-card:hover {
+.content-card:hover {
   transform: translateY(-5px);
 }
 
@@ -226,7 +216,7 @@ onMounted(() => {
   font-size: 0.95rem;
 }
 
-.btn-adopt {
+.button {
   display: inline-block;
   padding: 0.5rem 1.5rem;
   background: #4CAF50;
@@ -234,19 +224,31 @@ onMounted(() => {
   text-decoration: none;
   border-radius: 20px;
   transition: background 0.2s;
+  border: none;
+  cursor: pointer;
 }
 
-.btn-adopt:hover {
+.button:hover {
   background: #45a049;
 }
 
-.btn-view-all {
-  display: block;
-  text-align: center;
-  margin-top: 2rem;
-  color: #4CAF50;
-  text-decoration: none;
-  font-weight: bold;
+.button-primary {
+  background: #4CAF50;
+  color: white;
+}
+
+.button-primary:hover {
+  background: #45a049;
+}
+
+.button-secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.button-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .mission {
@@ -260,33 +262,14 @@ onMounted(() => {
   align-content: center;
 }
 
-.mission ul {
-  list-style: none;
-  padding: 0;
-  margin: 2rem 0;
+.mission h2 {
+  color: #333;
+  margin-bottom: 1.5rem;
 }
 
-.mission li {
-  margin: 1rem 0;
-  padding-left: 1.5rem;
-  position: relative;
-}
-
-.mission li:before {
-  content: "•";
-  color: #4CAF50;
-  position: absolute;
-  left: 0;
-}
-
-.btn-learn-more, .btn-volunteer {
-  display: inline-block;
-  padding: 0.8rem 2rem;
-  background: #4CAF50;
-  color: white;
-  text-decoration: none;
-  border-radius: 30px;
-  transition: background 0.2s;
+.mission p {
+  color: #666;
+  line-height: 1.6;
 }
 
 .volunteer-section {
@@ -338,16 +321,6 @@ onMounted(() => {
 .benefit p {
   color: #666;
   margin: 0;
-}
-
-.btn-volunteer {
-  font-size: 1.1rem;
-  padding: 1rem 3rem;
-}
-
-.btn-volunteer:hover {
-  background: #45a049;
-  transform: translateY(-2px);
 }
 
 .stories-grid {

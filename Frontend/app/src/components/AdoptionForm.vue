@@ -50,11 +50,14 @@
           <label for="address">Home Address*</label>
           <input
             id="address"
+            ref="addressInput"
             v-model="form.address"
             type="text"
             class="form-input-field"
             required
             placeholder="Enter your full address"
+            autocomplete="off"
+            @keydown.enter.prevent
           >
         </div>
 
@@ -158,9 +161,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { loadGoogleMapsAPI } from '@/utils/googleMaps.js'
 
 const route = useRoute()
 const router = useRouter()
+const addressInput = ref(null)
 
 const animalDetails = ref(null)
 const isLoading = ref(false)
@@ -178,6 +183,48 @@ const form = ref({
   workSchedule: '',
   experience: ''
 })
+
+// Initialize Places Autocomplete for address
+async function initializeAddressAutocomplete() {
+  try {
+    const google = await loadGoogleMapsAPI(process.env.VUE_APP_GOOGLE_MAPS_API_KEY)
+    if (!addressInput.value) return
+
+    // Use standard Google Maps API
+    const { Autocomplete } = google.maps.places
+    const { LatLngBounds } = google.maps
+    
+    // Set North Macedonia bounds
+    const bounds = new LatLngBounds(
+      { lat: 40.8537, lng: 20.4524 }, // SW corner
+      { lat: 42.3583, lng: 23.0347 }  // NE corner
+    )
+
+    const autocomplete = new Autocomplete(addressInput.value, {
+      bounds,
+      strictBounds: true,
+      componentRestrictions: { country: 'MK' },
+      fields: ['formatted_address', 'geometry', 'name']
+    })
+
+    // Handle place selection
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace()
+      if (place.formatted_address) {
+        form.value.address = place.formatted_address
+      } else if (place.name) {
+        form.value.address = place.name
+      }
+    })
+  } catch (err) {
+    console.error('Failed to initialize address autocomplete:', err)
+    error.value = 'Failed to load location services. Please try refreshing the page.'
+    // Enable manual input as fallback
+    if (addressInput.value) {
+      addressInput.value.removeAttribute('disabled')
+    }
+  }
+}
 
 async function fetchAnimalDetails() {
   try {
@@ -231,11 +278,12 @@ async function submitAdoptionForm() {
 
 onMounted(() => {
   if (route.params.animalId) {
-    fetchAnimalDetails();
+    fetchAnimalDetails()
+    initializeAddressAutocomplete()
   } else {
-    router.push('/adopt');
+    router.push('/adopt')
   }
-});
+})
 </script>
 
 <style scoped>
@@ -300,7 +348,17 @@ h2 {
   transition: all 0.2s;
 }
 
-.form-input:focus {
+.form-input-field {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.form-input:focus,
+.form-input-field:focus {
   outline: none;
   border-color: #4CAF50;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);

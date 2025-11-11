@@ -20,7 +20,7 @@ Project Overview
 
 Stray Care is a full-stack web application designed to help rescue and manage stray dogs. It provides:
 
-Animal Management: Add, update, and manage dog profiles
+Aimal Management: Add, update, and manage dog profiles
 Adoption System: Users can apply to adopt dogs
 Volunteer Program: Manage volunteer applications and tracking
 Donation System: Accept PayPal donations to support the shelter

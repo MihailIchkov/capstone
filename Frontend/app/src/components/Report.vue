@@ -21,7 +21,9 @@
                 v-model="report.location"
                 class="form-input-field"
                 placeholder="Enter location in North Macedonia"
+                autocomplete="off"
                 required
+                @keydown.enter.prevent
               >
             </div>
 
@@ -103,6 +105,7 @@ const geocoder = ref(null)
 const mapLoaded = ref(false)
 const locationInput = ref(null) 
 let placeAutocomplete = null
+let Marker = null // Store Marker class for use in setMarker function
 
 // Function to manage markers - ensures only one marker exists
 function setMarker(position) {
@@ -112,42 +115,71 @@ function setMarker(position) {
     currentMarker = null
   }
 
-  // Create new marker if position is provided and within bounds
-  if (position && 
-      position.lat >= MK_BOUNDS.south && 
-      position.lat <= MK_BOUNDS.north &&
-      position.lng >= MK_BOUNDS.west && 
-      position.lng <= MK_BOUNDS.east) {
-    
-    currentMarker = new window.google.maps.Marker({
-      position: position,
-      map: map.value,
-      draggable: true
-    })
-
-    currentMarker.addListener('dragend', () => {
-      const pos = currentMarker.getPosition()
-      const newPosition = {
-        lat: pos.lat(),
-        lng: pos.lng()
-      }
-
-      if (newPosition.lat >= MK_BOUNDS.south && 
-          newPosition.lat <= MK_BOUNDS.north &&
-          newPosition.lng >= MK_BOUNDS.west && 
-          newPosition.lng <= MK_BOUNDS.east) {
-        report.value.coordinates = newPosition
-        doReverseGeocode(newPosition)
-      } else {
-        currentMarker.setPosition(position)
-      }
-    })
-
-    report.value.coordinates = position
-    doReverseGeocode(position)
+  if (!position) {
+    console.log('No position provided to setMarker')
+    return
   }
 
+  // Latitude and Longitude conversion
+  let lat, lng
+  if (typeof position.lat === 'function') {
+    // It's a Google LatLng object
+    lat = position.lat()
+    lng = position.lng()
+  } else {
+    // It's already a plain object
+    lat = position.lat
+    lng = position.lng
+  }
 
+  console.log('setMarker called with lat:', lat, 'lng:', lng)
+
+  // Check bounds
+  if (lat < MK_BOUNDS.south || 
+      lat > MK_BOUNDS.north ||
+      lng < MK_BOUNDS.west || 
+      lng > MK_BOUNDS.east) {
+    console.log('Position outside bounds')
+    return
+  }
+  
+  if (!Marker) {
+    console.error('Marker class not available')
+    return
+  }
+
+  const markerPosition = { lat, lng }
+  console.log('Creating marker at:', markerPosition)
+
+  currentMarker = new Marker({
+    position: markerPosition,
+    map: map.value,
+    draggable: true
+  })
+
+  console.log('Marker created successfully at position:', markerPosition)
+
+  currentMarker.addListener('dragend', () => {
+    const pos = currentMarker.getPosition()
+    const newPosition = {
+      lat: pos.lat(),
+      lng: pos.lng()
+    }
+
+    if (newPosition.lat >= MK_BOUNDS.south && 
+        newPosition.lat <= MK_BOUNDS.north &&
+        newPosition.lng >= MK_BOUNDS.west && 
+        newPosition.lng <= MK_BOUNDS.east) {
+      report.value.coordinates = newPosition
+      doReverseGeocode(newPosition)
+    } else {
+      const origPosition = { lat, lng }
+      currentMarker.setPosition(origPosition)
+    }
+  })
+
+  report.value.coordinates = { lat, lng }
+  doReverseGeocode({ lat, lng })
 }
 
 // North Macedonia boundaries
@@ -173,6 +205,9 @@ async function initMap() {
     // Use standard Google Maps API
     const { Map, Geocoder, LatLngBounds } = google.maps;
     const { Autocomplete } = google.maps.places;
+    
+    // Store Marker class for use in setMarker function
+    Marker = google.maps.Marker;
 
     map.value = new Map(mapElement.value, {
       center: { lat: 41.6086, lng: 21.7453 }, // Center of North Macedonia
@@ -186,6 +221,8 @@ async function initMap() {
       zoomControl: true,
       mapTypeId: 'roadmap'
     });
+
+    console.log('Map initialized successfully with Marker class available')
 
     geocoder.value = new Geocoder();
 
@@ -413,17 +450,23 @@ async function submitReport() {
     }
 
     const token = localStorage.getItem('token')
+    const headers = {
+      'Content-Type': 'application/json'
+    }
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+
     const response = await fetch('http://localhost:5000/api/reports', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
+      headers: headers,
       body: JSON.stringify(formData)
     })
 
     if (!response.ok) {
-      throw new Error('Failed to submit report')
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error || 'Failed to submit report')
     }
 
     // Reset form
@@ -506,7 +549,17 @@ h2 {
   transition: all 0.2s;
 }
 
-.form-input:focus {
+.form-input-field {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.form-input:focus,
+.form-input-field:focus {
   outline: none;
   border-color: #4CAF50;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -564,16 +617,36 @@ textarea.form-input {
   gap: 0.5rem;
 }
 
-.submit-button:hover:not(:disabled) {
+.button {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.submit-button:hover:not(:disabled),
+.button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(76, 175, 80, 0.3);
 }
 
-.submit-button:active:not(:disabled) {
+.submit-button:active:not(:disabled),
+.button:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.submit-button:disabled {
+.submit-button:disabled,
+.button:disabled {
   background: #bdc3c7;
   cursor: not-allowed;
   opacity: 0.7;

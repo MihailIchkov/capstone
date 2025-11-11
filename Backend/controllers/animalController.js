@@ -9,8 +9,15 @@ const __dirname = dirname(__filename);
 
 export const getAllAnimals = async (req, res) => {
   try {
+    const limit = req.query.limit ? parseInt(req.query.limit) : null;
     const request = new sql.Request(pool);
-    const result = await request.query('SELECT * FROM Animals');
+    
+    let query = 'SELECT * FROM Animals';
+    if (limit) {
+      query = `SELECT TOP ${limit} * FROM Animals`;
+    }
+    
+    const result = await request.query(query);
     
     // Add the server URL to image paths
     const animals = result.recordset.map(animal => ({

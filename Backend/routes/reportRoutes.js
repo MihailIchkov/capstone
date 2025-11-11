@@ -1,6 +1,7 @@
 import express from 'express';
 import sql from 'mssql';
 import { pool } from '../config/db.js';
+import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -43,7 +44,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.put('/:id/status', async (req, res) => {
+router.put('/:id/status', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { Status } = req.body;
@@ -66,6 +67,29 @@ router.put('/:id/status', async (req, res) => {
   } catch (error) {
     console.error('Error updating report status:', error);
     res.status(500).json({ error: 'Failed to update report status' });
+  }
+});
+
+router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const request = new sql.Request(pool);
+
+    const result = await request
+      .input('ReportId', sql.Int, id)
+      .query(`
+        DELETE FROM Reports
+        WHERE ReportId = @ReportId
+      `);
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    res.json({ message: 'Report deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting report:', error);
+    res.status(500).json({ error: 'Failed to delete report' });
   }
 });
 

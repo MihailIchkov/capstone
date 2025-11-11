@@ -35,21 +35,6 @@
           </li>
         </ul>
       </div>
-
-      <div class="footer-section">
-        <h3>Follow Us</h3>
-        <div class="social-links">
-          <a href="#" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-facebook"></i>
-          </a>
-          <a href="#" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-instagram"></i>
-          </a>
-          <a href="#" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-twitter"></i>
-          </a>
-        </div>
-      </div>
     </div>
 
     <div class="footer-bottom">
@@ -68,7 +53,7 @@ const currentYear = computed(() => new Date().getFullYear())
 .footer {
   background-color: #333;
   color: #fff;
-  padding: 4rem 2rem 1rem;
+  padding: 5rem 2rem 2rem;
   margin-top: 4rem;
 }
 
@@ -77,13 +62,35 @@ const currentYear = computed(() => new Date().getFullYear())
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  gap: 4rem;
 }
 
 .footer-section h3 {
   color: #4CAF50;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.footer-section:nth-child(1) {
+  text-align: left;
+}
+
+.footer-section:nth-child(2) {
+  text-align: center;
+}
+
+.footer-section:nth-child(3) {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.footer-section p {
+  color: #e0e0e0;
+  line-height: 1.6;
+  margin: 0;
 }
 
 .footer-section ul {
@@ -93,13 +100,14 @@ const currentYear = computed(() => new Date().getFullYear())
 }
 
 .footer-section ul li {
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
 }
 
 .footer-section a {
   color: #fff;
   text-decoration: none;
   transition: color 0.2s;
+  font-weight: 500;
 }
 
 .footer-section a:hover {
@@ -108,15 +116,23 @@ const currentYear = computed(() => new Date().getFullYear())
 
 .contact-info li {
   display: flex;
+  flex-direction: row-reverse;
   align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 1.2rem;
+  margin-bottom: 1.2rem;
+  justify-content: flex-end;
+}
+
+.contact-info span {
+  color: #ffffff;
+  font-weight: 500;
 }
 
 .contact-info i {
   color: #4CAF50;
   font-size: 1.2rem;
   margin-top: 0.2rem;
+  flex-shrink: 0;
 }
 
 .social-links {
@@ -136,9 +152,11 @@ const currentYear = computed(() => new Date().getFullYear())
 
 .footer-bottom {
   text-align: center;
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(7, 7, 7, 0.1);
+  font-size: 0.9rem;
+  color: #999;
 }
 
 @media (max-width: 768px) {
