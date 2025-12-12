@@ -122,11 +122,13 @@ onMounted(() => {
 .hero h1 {
   font-size: 3.5rem;
   margin-bottom: 1rem;
+  color: #000;
 }
 
 .hero p {
   font-size: 1.5rem;
   margin-bottom: 2rem;
+  color: #333;
 }
 
 .hero-buttons {
@@ -144,8 +146,9 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #4CAF50;
+  background: transparent;
   color: white;
+  border: 2px solid white;
 }
 
 .btn-secondary {
@@ -184,14 +187,19 @@ onMounted(() => {
 }
 
 .dog-image {
-  height: 200px;
+  height: 250px;
   overflow: hidden;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dog-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
 }
 
 .dog-info {
@@ -233,12 +241,13 @@ onMounted(() => {
 }
 
 .button-primary {
-  background: #4CAF50;
+  background: transparent;
   color: white;
+  border: 2px solid white;
 }
 
 .button-primary:hover {
-  background: #45a049;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .button-secondary {

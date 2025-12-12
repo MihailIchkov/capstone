@@ -72,14 +72,33 @@
           @change="handleImageSelect"
           class="form-input-field"
         >
+        <div class="image-guidelines">
+          <p><strong>Recommended dimensions:</strong> 400x300px (4:3 ratio)</p>
+          <p>This ensures optimal display on all devices</p>
+        </div>
         <div
           v-if="previewUrl"
-          class="image-preview"
+          class="image-preview-container"
         >
-          <img
-            :src="previewUrl"
-            alt="Preview"
-          >
+          <div class="preview-info">
+            <p v-if="imageDimensions"><strong>Current size:</strong> {{ imageDimensions.width }}x{{ imageDimensions.height }}px</p>
+            <button 
+              v-if="canCrop"
+              type="button"
+              @click="autoCropImage"
+              class="crop-button"
+            >
+              Auto Crop for Best Look
+            </button>
+          </div>
+          <div class="image-preview">
+            <img
+              ref="previewImage"
+              :src="previewUrl"
+              alt="Preview"
+              @load="onImageLoad"
+            >
+          </div>
         </div>
       </div>
 
@@ -110,6 +129,13 @@ const error = ref('')
 const isSubmitting = ref(false)
 const previewUrl = ref(null)
 const selectedFile = ref(null)
+const previewImage = ref(null)
+const imageDimensions = ref(null)
+const canCrop = ref(false)
+
+const RECOMMENDED_WIDTH = 400
+const RECOMMENDED_HEIGHT = 300
+const ASPECT_RATIO = RECOMMENDED_WIDTH / RECOMMENDED_HEIGHT
 
 const dog = ref({
   name: '',
@@ -117,6 +143,72 @@ const dog = ref({
   age: null,
   description: ''
 })
+
+function onImageLoad() {
+  if (previewImage.value) {
+    imageDimensions.value = {
+      width: previewImage.value.naturalWidth,
+      height: previewImage.value.naturalHeight
+    }
+    // Check if image needs cropping (not in recommended ratio)
+    const currentRatio = imageDimensions.value.width / imageDimensions.value.height
+    canCrop.value = Math.abs(currentRatio - ASPECT_RATIO) > 0.1
+  }
+}
+
+async function autoCropImage() {
+  if (!selectedFile.value || !previewImage.value) return
+
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  const img = previewImage.value
+
+  const imgWidth = img.naturalWidth
+  const imgHeight = img.naturalHeight
+  const imgRatio = imgWidth / imgHeight
+
+  let cropWidth, cropHeight
+
+  if (imgRatio > ASPECT_RATIO) {
+    // Image is wider than recommended - crop width
+    cropHeight = imgHeight
+    cropWidth = imgHeight * ASPECT_RATIO
+  } else {
+    // Image is taller than recommended - crop height
+    cropWidth = imgWidth
+    cropHeight = imgWidth / ASPECT_RATIO
+  }
+
+  const offsetX = (imgWidth - cropWidth) / 2
+  const offsetY = (imgHeight - cropHeight) / 2
+
+  canvas.width = RECOMMENDED_WIDTH
+  canvas.height = RECOMMENDED_HEIGHT
+
+  ctx.drawImage(
+    img,
+    offsetX,
+    offsetY,
+    cropWidth,
+    cropHeight,
+    0,
+    0,
+    RECOMMENDED_WIDTH,
+    RECOMMENDED_HEIGHT
+  )
+
+  canvas.toBlob((blob) => {
+    const croppedFile = new File([blob], selectedFile.value.name, { type: 'image/jpeg' })
+    selectedFile.value = croppedFile
+    previewUrl.value = canvas.toDataURL('image/jpeg')
+    
+    imageDimensions.value = {
+      width: RECOMMENDED_WIDTH,
+      height: RECOMMENDED_HEIGHT
+    }
+    canCrop.value = false
+  }, 'image/jpeg', 0.95)
+}
 
 function handleImageSelect(event) {
   const file = event.target.files[0]
@@ -222,14 +314,65 @@ button:disabled {
   margin-top: 10px;
 }
 
+.image-guidelines {
+  background-color: #e8f5e9;
+  border-left: 4px solid #4CAF50;
+  padding: 10px 12px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.image-guidelines p {
+  margin: 5px 0;
+  color: #2e7d32;
+}
+
+.image-preview-container {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.preview-info {
+  margin-bottom: 15px;
+}
+
+.preview-info p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.crop-button {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.crop-button:hover {
+  background-color: #1976D2;
+}
+
 .image-preview {
   margin-top: 10px;
-  max-width: 200px;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .image-preview img {
-  width: 100%;
-  height: auto;
+  max-width: 100%;
+  max-height: 300px;
   border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>

@@ -99,13 +99,17 @@ onMounted(() => {
   width: 100%;
   height: 250px;
   overflow: hidden;
-  background: #f5f5f5;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dog-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
 }
 
 .dog-info {
